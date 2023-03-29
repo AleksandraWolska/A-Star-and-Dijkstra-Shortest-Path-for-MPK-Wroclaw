@@ -1,7 +1,8 @@
 //Importing dependencies
-const { createPriorityQueue } = require('fastpriorityqueue');
+const PriorityQueue = require('fastpriorityqueue');
 const { time } = require('./Utils');
 const { Criteria } = require('./utils.js');
+const { Graph, Edge, Node } = require('./graph');
 
 //Function for A* algorithm
 function astar(start, goal, neighbors_fn, heuristic_fn) {
@@ -93,20 +94,24 @@ from the previous node on the shortest path.
 */
 function astarTime(graph, criteria, start, goal, heuristic_fn) {
     // Initialize costs to infinity for all nodes except the start node
-    const costs = Object.fromEntries(Array.from(graph.lines.values(), (nodes) => nodes.flatMap((node) => [node, Infinity])));
+    //const costs = Object.fromEntries(Array.from(graph.lines.values(), (nodes) => nodes.flatMap((node) => [node, Infinity])));
+    const costs = Object.fromEntries(
+        Object.values(graph.lines).flatMap((nodes) =>
+            Object.keys(nodes).flatMap((node) => [node, Infinity])
+        ))
 
     // Initialize the edge_to_node mapping to null for all nodes
-    const edge_to_node = Object.fromEntries(Array.from(graph.lines.values(), (nodes) => nodes.flatMap((node) => [node, null])));
+    const edge_to_node = Object.fromEntries(Object.values(graph.lines).flatMap((nodes) => nodes.flatMap((node) => [node, null])));
 
     // Set the cost of the start node to 0
     costs[start] = 0;
 
     // Initialize the priority queue with the start node
-    const pq = createPriorityQueue((a, b) => a[0] < b[0]);
+    const pq = new PriorityQueue((a, b) => a[0] < b[0]);
     pq.add([0, 0, start]);
 
     // Loop until the goal node is reached
-    while (pq.peek()[2] !== goal) {
+    while (!pq.isEmpty() && pq.peek()[2] !== goal) {
         // Get the node with the lowest cost from the priority queue
         const [_, curr_cost, curr_node] = pq.poll();
 
@@ -119,7 +124,7 @@ function astarTime(graph, criteria, start, goal, heuristic_fn) {
         const best_new_nodes = {};
 
         // Loop through each line in the graph
-        for (const [line, nodes] of graph.lines) {
+        for (const [line, nodes] of Object.entries(graph.lines)) {
             // If the current node is a node on the line
             if (nodes[curr_node]) {
                 // Loop through each neighbor of the current node on the line
@@ -292,21 +297,23 @@ Calculates the shortest path between two nodes in a graph using A* algorithm wit
 
 @returns {[number, array]} - An array containing the shortest cost to the goal node and the path as an array of edges.
 */
-function astarTimeShortestPath(graph, start, goal) {
-    // Call astarTime function to get costs and edgeToNode
-    const [costs, edgeToNode] = astarTime(graph, Criteria.t, start, goal, manhattanDistance);
-
-    // Traverse the path and add edges to an array
+function astarShortestPath(graph, start, goal, timeZero, criteria, heuristicFn) {
+    let costs, edgeToNode;
+    
+    if (criteria === Criteria.t) {
+      [costs, edgeToNode] = astarTime(graph, timeZero, start, goal, heuristicFn);
+    } else if (criteria === Criteria.p) {
+      [costs, edgeToNode] = astarLines(graph, start, goal, timeZero, heuristicFn);
+    }
+  
     const path = [];
     let currNode = goal;
     while (currNode !== start) {
-        path.push(edgeToNode[currNode]);
-        currNode = edgeToNode[currNode].start;
+      path.push(edgeToNode[currNode]);
+      currNode = edgeToNode[currNode].start;
     }
-
-    // Reverse the path array to obtain the correct order of edges
     path.reverse();
     return [costs[goal], path];
-}
+  }
 
-module.exports = { astar, astarTime: astarTime, astarLines, astarTimeShortestPath, manhattanDistance, euclideanDistance };
+module.exports = { astar, astarTime: astarTime, astarLines, astarShortestPath, manhattanDistance, euclideanDistance };

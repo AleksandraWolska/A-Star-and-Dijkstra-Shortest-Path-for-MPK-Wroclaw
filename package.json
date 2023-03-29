@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "csv-parser": "^3.0.0",
-    "fastpriorityqueue": "^0.7.4"
+    "fastpriorityqueue": "^0.7.4",
+    "moment": "^2.29.4"
   }
 }
