@@ -43,7 +43,7 @@ function clearRow(row) {
     //console.log();
     return [...row.slice(0, indice_departure_time), departureTime, arrivalTime, ...row.slice(indice_arrival_time + 1)];
 }
-function loadCSV(filename = 'connection_graph_reduced.csv') {
+function loadCSV(filename = 'connection_graph.csv') {
     const data = [];
     const file = fs.readFileSync(filename, { encoding: 'utf-8' });
     const rows = file.split('\n');
@@ -109,7 +109,7 @@ function main() {
     // const graph: graph = new Graph(data);
     // Save the graph to a file
     //fs.writeFileSync('graph.json', JSON.stringify(graph));
-    task1(graph, 'Katedra', 'Sowia', new Date('2023-03-28T19:58:00'));
+    task1(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'));
     //task2('KRZYKI', 'Ramiszów', Criteria.t, new Date('2023-03-28T19:58:00'));
 }
 main();

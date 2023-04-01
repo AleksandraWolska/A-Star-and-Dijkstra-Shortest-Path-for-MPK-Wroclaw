@@ -46,7 +46,7 @@ function clearRow(row: string[]): any[] {
 }
 
 
-function loadCSV(filename = 'connection_graph_reduced.csv') {
+function loadCSV(filename = 'connection_graph.csv') {
     const data = [];
     const file = fs.readFileSync(filename, { encoding: 'utf-8' });
     const rows = file.split('\n');
@@ -131,7 +131,7 @@ function main() {
 
     //fs.writeFileSync('graph.json', JSON.stringify(graph));
 
-    task1(graph, 'Katedra', 'Sowia', new Date('2023-03-28T19:58:00'))
+    task1(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
     //task2('KRZYKI', 'Ramiszów', Criteria.t, new Date('2023-03-28T19:58:00'));
 }
 
