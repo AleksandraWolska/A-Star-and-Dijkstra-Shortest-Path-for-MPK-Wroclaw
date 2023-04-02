@@ -88,14 +88,14 @@ function astarTime(graph: graph, start: string, goal: string, time_zero: Date, h
                             continue;
                         }
                         const waiting_time = timeSinceZero - currTime;
-                        const newGCost = currTime + waiting_time + edge.cost;
-                        if (newGCost < g_costs[edge.stop]) {
-                            g_costs[edge.stop] = newGCost;
+                        const newCost = currTime + waiting_time + edge.cost;
+                        if (newCost < g_costs[edge.stop]) {
+                            g_costs[edge.stop] = newCost;
                             const magic_number = 100000;
-                            f_costs[edge.stop] = newGCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
+                            f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
                             edgeToNode[edge.stop] = edge;
-                            pq.add([f_costs[edge.stop], newGCost, edge.stop]);
-                            bestNewNodes[edge.stop] = [f_costs[edge.stop], newGCost];
+                            pq.add([f_costs[edge.stop], newCost, edge.stop]);
+                            bestNewNodes[edge.stop] = [f_costs[edge.stop], newCost];
                         }
                     }
                 }
@@ -108,6 +108,8 @@ function astarTime(graph: graph, start: string, goal: string, time_zero: Date, h
     }
     return null;
 }
+
+
 function astarLines(
     graph: graph,
     start: string,
@@ -147,6 +149,10 @@ function astarLines(
         if (curr_node in nodes) {
           for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
             for (const edge of edges) {
+
+            if (edge.departureTime.getTime() > time_zero.getTime()){
+
+
               let g = g_costs[curr_node];
               if (curr_line != edge.line) {
                 g += 10;
@@ -155,9 +161,8 @@ function astarLines(
               let newCost = g
 
                const timeSinceZero = edge.timeSinceTimeZero(time_zero);
-
-               const waiting_time = timeSinceZero - curr_cost_lines;
-            //   const newCost = g + waiting_time;
+             //const waiting_time = timeSinceZero - curr_cost_lines;
+              //let newCost = g + waiting_time;
 
 
               if (newCost < g_costs[edge.stop]) {
@@ -168,6 +173,10 @@ function astarLines(
                 pq.add([f_costs[edge.stop], edge.line, edge.stop]);
                 best_new_nodes[edge.stop] = [f_costs[edge.stop], newCost];
               }
+
+
+            }
+
             }
           }
         }

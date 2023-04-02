@@ -143,12 +143,15 @@ function main() {
     // task2(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
     // graph = new Graph(data);
     // task3(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
-
-    task1(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+    const timeString = '19:58:00'; // example time in hh:mm:ss format
+const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    const today = new Date();
+    const datetime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, seconds);
+    task1(graph, 'Prusa', 'Kwiska', datetime)
     graph = new Graph(data);
-    task2(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+    task2(graph, 'Prusa', 'Kwiska', datetime)
     graph = new Graph(data);
-    task3(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+    task3(graph, 'Prusa', 'Kwiska', datetime)
 
 }
 
