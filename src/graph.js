@@ -121,7 +121,10 @@ class Edge {
         //console.log("tu jestem time zero since")
         //console.log(this.departureTime)
         //console.log(newTimeZero)
-        return this._timeSinceTimeZero === null ? calcSec(newTimeZero, this.departureTime) : this._timeSinceTimeZero;
+        if (this._timeSinceTimeZero === null) {
+            this._timeSinceTimeZero = calcSec(newTimeZero, this.departureTime);
+        }
+        return this._timeSinceTimeZero;
     }
     compareTo(other) {
         return this._timeSinceTimeZero - other._timeSinceTimeZero;
@@ -151,7 +154,7 @@ function calcSec(start, end) {
     else {
         const diff = endSec - startSec;
         // console.log(diff)
-        return diff;
+        return Math.floor(diff / 60);
     }
 }
 function printResult(path, startTime) {

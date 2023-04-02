@@ -7,6 +7,8 @@ const { Criteria } = require('./utils');
 //const moment = require('moment');
 import moment from 'moment';
 
+import { manhattan_distance } from './astar';
+
 import { graph, node, edge } from "./types"
 
 // const indice_id = 0;
@@ -104,24 +106,29 @@ function task1(graph: graph, start: string, end: string, startTime: Date): void 
     console.log(`Execution of Dijkstra algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
 }
 
-// function task2(start, end, criteria, startTime) {
-//     const data = loadCsv();
+function task2(graph: graph, start: string, end: string, startTime: Date) {
+    const beginTime = new Date();
+    const [cost, path] = astarShortestPath(graph, start, end, startTime, "t", manhattan_distance );
+    const endTime = new Date();
+    console.log('A* Algorithm:');
+    console.log(path, startTime);
+    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
+}
 
-//     const graph = new Graph(data, startTime);
-
-//     const beginTime = new Date();
-//     const [cost, path] = astarShortestPath(graph, start, end);
-//     const endTime = new Date();
-//     console.log('A* Algorithm:');
-//     console.logResult(path, startTime);
-//     console.log(`Execution of A* algorithm took: ${endTime - beginTime}`);
-// }
+function task3(graph: graph, start: string, end: string, startTime: Date) {
+    const beginTime = new Date();
+    const [cost, path] = astarShortestPath(graph, start, end, startTime, "p", manhattan_distance );
+    const endTime = new Date();
+    console.log('A* Algorithm:');
+    console.log(path, startTime);
+    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
+}
 
 function main() {
 
     const data = loadCSV();
     
-    const graph: graph = new Graph(data);
+    let graph: graph = new Graph(data);
 
     // const data = loadCSV();
 
@@ -131,8 +138,18 @@ function main() {
 
     //fs.writeFileSync('graph.json', JSON.stringify(graph));
 
-    task1(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
-    //task2('KRZYKI', 'Ramiszów', Criteria.t, new Date('2023-03-28T19:58:00'));
+    // task1(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
+    // graph = new Graph(data);
+    // task2(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
+    // graph = new Graph(data);
+    // task3(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
+
+    task1(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+    graph = new Graph(data);
+    task2(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+    graph = new Graph(data);
+    task3(graph, 'Prusa', 'Kwiska', new Date('2023-03-28T19:58:00'))
+
 }
 
 
