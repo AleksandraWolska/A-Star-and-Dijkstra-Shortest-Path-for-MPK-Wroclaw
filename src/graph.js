@@ -13,20 +13,20 @@ const indice_start_lon = 8;
 const indice_end_lat = 9;
 const indice_end_lon = 10;
 class Graph {
-    constructor(csv_data) {
+    constructor(csv_data, datetime) {
         this.lines = {};
         this.nodes = {};
-        this.createGraph(csv_data);
-        this.sortEdges();
+        this.createGraph(csv_data, datetime);
+        this.sortEdges(datetime);
     }
-    createGraph(csv_data) {
+    createGraph(csv_data, datetime) {
         for (let row of csv_data) {
             const start = row[indice_start];
             const end = row[indice_end];
             const line = row[indice_line];
             const start_departure = row[indice_departure_time];
             const end_arrival = row[indice_arrival_time];
-            const edge = new Edge(start, end, line, start_departure, end_arrival);
+            const edge = new Edge(start, end, line, start_departure, end_arrival, datetime);
             if (!(line in this.lines))
                 this.lines[line] = {};
             if (!(start in this.lines[line]))
@@ -42,12 +42,13 @@ class Graph {
                 this.nodes[end] = new Node(end, row[indice_end_lat], row[indice_end_lon]);
         }
     }
-    sortEdges() {
+    sortEdges(datetime) {
         for (let [line, nodes] of Object.entries(this.lines)) {
             for (let [node, neighbours] of Object.entries(nodes)) {
                 //connectionEdge jest na linię i czas
                 for (let [neighbour, connectionEdges] of Object.entries(neighbours)) {
                     //sortowanie 
+                    //connectionEdges.sort((a, b) => a.timeSinceTimeZero(datetime) > b.timeSinceTimeZero(datetime) ? 1 : 0);
                     connectionEdges.sort(Edge.compare);
                 }
             }
@@ -73,13 +74,14 @@ class Node {
 }
 exports.Node = Node;
 class Edge {
-    constructor(start, end, line, departureTime, arrivalTime) {
+    constructor(start, end, line, departureTime, arrivalTime, datetime) {
         this.start = start;
         this.stop = end;
         this.line = line;
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
-        this._timeSinceTimeZero = null;
+        this.datetime = datetime;
+        this._timeSinceTimeZero = calculateMinutesDifference(datetime, this.departureTime);
         this.cost = calculateMinutesDifference(departureTime, arrivalTime);
     }
     clearTimeSinceTimeZero() {

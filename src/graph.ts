@@ -18,14 +18,14 @@ export class Graph {
   lines: { [line: string]: { [node: string]: { [neighbour: string]: edge[] } } };
   nodes: { [node: string]: node };
 
-  constructor(csv_data: any[]) {
+  constructor(csv_data: any[], datetime : Date) {
     this.lines = {};
     this.nodes = {};
-    this.createGraph(csv_data);
-    this.sortEdges();
+    this.createGraph(csv_data, datetime);
+    this.sortEdges(datetime);
   }
 
-  createGraph(csv_data: any[]) {
+  createGraph(csv_data: any[], datetime: Date) {
 
     for (let row of csv_data) {
 
@@ -35,7 +35,7 @@ export class Graph {
       const start_departure: Date = row[indice_departure_time];
       const end_arrival: Date = row[indice_arrival_time];
 
-      const edge: Edge = new Edge(start, end, line, start_departure, end_arrival);
+      const edge: Edge = new Edge(start, end, line, start_departure, end_arrival, datetime);
 
       if (!(line in this.lines)) this.lines[line] = {};
       if (!(start in this.lines[line])) this.lines[line][start] = {};
@@ -51,13 +51,16 @@ export class Graph {
     }
   }
 
-  sortEdges() {
+  sortEdges(datetime: Date) {
     for (let [line, nodes] of Object.entries(this.lines)) {
       for (let [node, neighbours] of Object.entries(nodes)) {
         //connectionEdge jest na linię i czas
         for (let [neighbour, connectionEdges] of Object.entries(neighbours)) {
+          
           //sortowanie 
+          //connectionEdges.sort((a, b) => a.timeSinceTimeZero(datetime) > b.timeSinceTimeZero(datetime) ? 1 : 0);
           connectionEdges.sort(Edge.compare);
+
         }
       }
     }
@@ -98,14 +101,16 @@ export class Edge {
   arrivalTime: Date;
   _timeSinceTimeZero: number | null;
   cost: number;
+  datetime?: Date;
 
-  constructor(start: string, end: string, line: string, departureTime: Date, arrivalTime: Date) {
+  constructor(start: string, end: string, line: string, departureTime: Date, arrivalTime: Date, datetime: Date) {
     this.start = start;
     this.stop = end;
     this.line = line;
     this.departureTime = departureTime;
     this.arrivalTime = arrivalTime;
-    this._timeSinceTimeZero = null;
+    this.datetime = datetime
+    this._timeSinceTimeZero = calculateMinutesDifference(datetime, this.departureTime);
     this.cost = calculateMinutesDifference(departureTime, arrivalTime);
   }
 
@@ -122,7 +127,6 @@ export class Edge {
 
 
   static compare(a: Edge, b: Edge): number {
-    
     return a._timeSinceTimeZero! < b._timeSinceTimeZero! ? -1 : a._timeSinceTimeZero! > b._timeSinceTimeZero! ? 1 : 0;
   }
 

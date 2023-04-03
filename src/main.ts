@@ -107,7 +107,7 @@ function main() {
     
     
     let datetime = moment('17:00:00', 'HH:mm:ss').toDate()
-    let graph: graph = new Graph(data);
+    let graph: graph = new Graph(data, datetime);
     // const timeString = '19:58:00'; // example time in hh:mm:ss format
     // const [hours, minutes, seconds] = timeString.split(':').map(Number);
     // const today = new Date();
@@ -120,9 +120,9 @@ function main() {
     console.log("main datetime:" + datetime )
 
     task1(graph, 'Prusa', 'Kwiska', datetime)
-    let graph2 = new Graph(data);
+    let graph2 = new Graph(data, datetime);
     task2(graph2, 'Prusa', 'Kwiska', datetime)
-    let graph3 = new Graph(data);
+    let graph3 = new Graph(data, datetime);
     task3(graph3, 'Prusa', 'Kwiska', datetime)
 
 }

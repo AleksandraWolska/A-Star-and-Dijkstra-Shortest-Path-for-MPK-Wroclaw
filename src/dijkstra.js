@@ -44,10 +44,10 @@ function dijkstraTime(graph, sourceNode, momentZero) {
             if (currentNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currentNode])) {
                     for (const edge of edges) {
-                        const timeSinceZero = edge.timeSinceTimeZero(momentZero);
-                        if (timeSinceZero < currentCost)
+                        //const timeSinceZero: number = edge.timeSinceTimeZero(momentZero);
+                        if (edge._timeSinceTimeZero < currentCost)
                             continue;
-                        const waitingTime = timeSinceZero - currentCost;
+                        const waitingTime = edge._timeSinceTimeZero - currentCost;
                         const changeTime = (edgesUsed[edge.start] && edge.line != ((_a = edgesUsed[edge.start]) === null || _a === void 0 ? void 0 : _a.line)) ? 1 : 0;
                         const newCost = currentCost + edge.cost + waitingTime + changeTime;
                         if (newCost < costs[edge.stop]) {

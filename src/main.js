@@ -92,7 +92,7 @@ function task3(graph, start, end, startTime) {
 function main() {
     const data = loadCSV();
     let datetime = (0, moment_1.default)('17:00:00', 'HH:mm:ss').toDate();
-    let graph = new graph_1.Graph(data);
+    let graph = new graph_1.Graph(data, datetime);
     // const timeString = '19:58:00'; // example time in hh:mm:ss format
     // const [hours, minutes, seconds] = timeString.split(':').map(Number);
     // const today = new Date();
@@ -103,9 +103,9 @@ function main() {
     // console.log(datetime)
     console.log("main datetime:" + datetime);
     task1(graph, 'Prusa', 'Kwiska', datetime);
-    let graph2 = new graph_1.Graph(data);
+    let graph2 = new graph_1.Graph(data, datetime);
     task2(graph2, 'Prusa', 'Kwiska', datetime);
-    let graph3 = new graph_1.Graph(data);
+    let graph3 = new graph_1.Graph(data, datetime);
     task3(graph3, 'Prusa', 'Kwiska', datetime);
 }
 main();

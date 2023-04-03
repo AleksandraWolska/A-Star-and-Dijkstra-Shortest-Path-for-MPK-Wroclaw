@@ -83,11 +83,11 @@ export function astarTime(graph: graph, start: string, goal: string, time_zero: 
             if (currNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
                     for (const edge of edges) {
-                        const timeSinceZero = edge.timeSinceTimeZero(time_zero);
-                        if (timeSinceZero < currTime) {
+                        //const timeSinceZero = edge.timeSinceTimeZero(time_zero);
+                        if (edge._timeSinceTimeZero < currTime) {
                             continue;
                         }
-                        const waiting_time = timeSinceZero - currTime;
+                        const waiting_time = edge._timeSinceTimeZero - currTime;
                         const newCost = currTime + waiting_time + edge.cost;
                         if (newCost < g_costs[edge.stop]) {
                             g_costs[edge.stop] = newCost;
@@ -150,19 +150,22 @@ export function astarLines(
           for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
             for (const edge of edges) {
 
-            if (edge.departureTime.getTime() >= momentZero.getTime()){
+              // console.log("dep" + edge.departureTime)
+              // //console.log(edge_to_node[curr_node].arrivalTime)
+              // console.log("arr" + edge_to_node[curr_node]?.arrivalTime)
+              //if(Object.keys(edge_to_node).length == 0  || edge.departureTime >= edge_to_node[curr_node].arrivalTime) {
+
+              if (edge_to_node[curr_node]?.arrivalTime == undefined || edge.departureTime >= edge_to_node[curr_node]?.arrivalTime) {
 
 
+
+              
               let g = g_costs[curr_node];
               if (curr_line != edge.line) {
                 g += 10;
               }
   
               let newCost = g
-
-              edge.timeSinceTimeZero(momentZero);
-             //const waiting_time = timeSinceZero - curr_cost_lines;
-              //let newCost = g + waiting_time;
 
 
               if (newCost < g_costs[edge.stop]) {
@@ -174,10 +177,10 @@ export function astarLines(
                 best_new_nodes[edge.stop] = [f_costs[edge.stop], newCost];
               }
 
-
             }
+          }
 
-            }
+           // }
           }
         }
       }

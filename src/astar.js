@@ -71,11 +71,11 @@ function astarTime(graph, start, goal, time_zero, heurestic_fn) {
             if (currNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
                     for (const edge of edges) {
-                        const timeSinceZero = edge.timeSinceTimeZero(time_zero);
-                        if (timeSinceZero < currTime) {
+                        //const timeSinceZero = edge.timeSinceTimeZero(time_zero);
+                        if (edge._timeSinceTimeZero < currTime) {
                             continue;
                         }
-                        const waiting_time = timeSinceZero - currTime;
+                        const waiting_time = edge._timeSinceTimeZero - currTime;
                         const newCost = currTime + waiting_time + edge.cost;
                         if (newCost < g_costs[edge.stop]) {
                             g_costs[edge.stop] = newCost;
@@ -97,6 +97,7 @@ function astarTime(graph, start, goal, time_zero, heurestic_fn) {
 }
 exports.astarTime = astarTime;
 function astarLines(graph, start, goal, momentZero, costEstimationFunction) {
+    var _a, _b;
     const f_costs = {};
     const g_costs = {};
     const edge_to_node = {};
@@ -122,15 +123,16 @@ function astarLines(graph, start, goal, momentZero, costEstimationFunction) {
             if (curr_node in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
                     for (const edge of edges) {
-                        if (edge.departureTime.getTime() >= momentZero.getTime()) {
+                        // console.log("dep" + edge.departureTime)
+                        // //console.log(edge_to_node[curr_node].arrivalTime)
+                        // console.log("arr" + edge_to_node[curr_node]?.arrivalTime)
+                        //if(Object.keys(edge_to_node).length == 0  || edge.departureTime >= edge_to_node[curr_node].arrivalTime) {
+                        if (((_a = edge_to_node[curr_node]) === null || _a === void 0 ? void 0 : _a.arrivalTime) == undefined || edge.departureTime >= ((_b = edge_to_node[curr_node]) === null || _b === void 0 ? void 0 : _b.arrivalTime)) {
                             let g = g_costs[curr_node];
                             if (curr_line != edge.line) {
                                 g += 10;
                             }
                             let newCost = g;
-                            edge.timeSinceTimeZero(momentZero);
-                            //const waiting_time = timeSinceZero - curr_cost_lines;
-                            //let newCost = g + waiting_time;
                             if (newCost < g_costs[edge.stop]) {
                                 g_costs[edge.stop] = newCost;
                                 f_costs[edge.stop] = newCost + costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
@@ -140,6 +142,7 @@ function astarLines(graph, start, goal, momentZero, costEstimationFunction) {
                             }
                         }
                     }
+                    // }
                 }
             }
         }

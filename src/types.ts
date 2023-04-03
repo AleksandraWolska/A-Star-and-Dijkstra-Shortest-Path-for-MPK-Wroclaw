@@ -11,7 +11,7 @@ type node = {
     timeSinceTimeZero : (date: Date) => number;
     departureTime: Date;
     arrivalTime: Date;
-    // _timeSinceTimeZero: number | null;
+     _timeSinceTimeZero: number | null;
     cost: number;
   };
   
