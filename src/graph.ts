@@ -2,17 +2,17 @@
 
 import { node, edge } from "./types"
 
-const indice_id = 0;
-const indice_company = 1;
-const indice_line = 2;
-const indice_departure_time = 3;
-const indice_arrival_time = 4;
-const indice_start = 5;
-const indice_end = 6;
-const indice_start_lat = 7;
-const indice_start_lon = 8;
-const indice_end_lat = 9;
-const indice_end_lon = 10;
+const idx_id = 0;
+const idx_company = 1;
+const idx_line = 2;
+const idx_departure_time = 3;
+const idx_arrival_time = 4;
+const idx_start = 5;
+const idx_end = 6;
+const idx_start_lat = 7;
+const idx_start_lon = 8;
+const idx_end_lat = 9;
+const idx_end_lon = 10;
 
 export class Graph {
   lines: { [line: string]: { [node: string]: { [neighbour: string]: edge[] } } };
@@ -22,18 +22,18 @@ export class Graph {
     this.lines = {};
     this.nodes = {};
     this.createGraph(csv_data, datetime);
-    this.sortEdges(datetime);
+    this.sortEdges();
   }
 
   createGraph(csv_data: any[], datetime: Date) {
 
     for (let row of csv_data) {
 
-      const start: string = row[indice_start];
-      const end: string = row[indice_end];
-      const line: string = row[indice_line];
-      const start_departure: Date = row[indice_departure_time];
-      const end_arrival: Date = row[indice_arrival_time];
+      const start: string = row[idx_start];
+      const end: string = row[idx_end];
+      const line: string = row[idx_line];
+      const start_departure: Date = row[idx_departure_time];
+      const end_arrival: Date = row[idx_arrival_time];
 
       const edge: Edge = new Edge(start, end, line, start_departure, end_arrival, datetime);
 
@@ -45,13 +45,13 @@ export class Graph {
 
       this.lines[line][start][end].push(edge);
 
-      if (!(start in this.nodes))  this.nodes[start] = new Node(start, row[indice_start_lat], row[indice_start_lon]);
-      if (!(end in this.nodes))  this.nodes[end] = new Node(end, row[indice_end_lat], row[indice_end_lon]);
+      if (!(start in this.nodes))  this.nodes[start] = new Node(start, row[idx_start_lat], row[idx_start_lon]);
+      if (!(end in this.nodes))  this.nodes[end] = new Node(end, row[idx_end_lat], row[idx_end_lon]);
    
     }
   }
 
-  sortEdges(datetime: Date) {
+  sortEdges() {
     for (let [line, nodes] of Object.entries(this.lines)) {
       for (let [node, neighbours] of Object.entries(nodes)) {
         //connectionEdge jest na linię i czas
@@ -77,13 +77,13 @@ export class Graph {
 
 export class Node {
   name: string;
-  lat: number;
-  lon: number;
+  latitude: number;
+  longitude: number;
 
   constructor(name: string, latitude: number, longitude: number) {
     this.name = name;
-    this.lat = latitude;
-    this.lon = longitude;
+    this.latitude = latitude;
+    this.longitude = longitude;
   }
 
   isEqual(other: Node): boolean {
@@ -94,69 +94,65 @@ export class Node {
 
 
 export class Edge {
+  line: string;
   start: string;
   stop: string;
-  line: string;
   departureTime: Date;
   arrivalTime: Date;
-  _timeSinceTimeZero: number | null;
-  cost: number;
+  timeFromMomentZero: number | null;
+  rideCost: number;
   datetime?: Date;
 
   constructor(start: string, end: string, line: string, departureTime: Date, arrivalTime: Date, datetime: Date) {
+    this.line = line;
     this.start = start;
     this.stop = end;
-    this.line = line;
     this.departureTime = departureTime;
     this.arrivalTime = arrivalTime;
     this.datetime = datetime
-    this._timeSinceTimeZero = calculateMinutesDifference(datetime, this.departureTime);
-    this.cost = calculateMinutesDifference(departureTime, arrivalTime);
+    this.timeFromMomentZero = calculateMinutesDifference(datetime, this.departureTime);
+    this.rideCost = calculateMinutesDifference(departureTime, arrivalTime);
   }
 
-  clearTimeSinceTimeZero(): void {
-    this._timeSinceTimeZero = null;
-  }
 
-  timeSinceTimeZero(newTimeZero: Date): number {
-    if (this._timeSinceTimeZero === null) {
-      this._timeSinceTimeZero = calculateMinutesDifference(newTimeZero, this.departureTime)
+  setTimeFromMomentZero(newTimeZero: Date): number {
+    if (this.timeFromMomentZero === null) {
+      this.timeFromMomentZero = calculateMinutesDifference(newTimeZero, this.departureTime)
     }
-    return this._timeSinceTimeZero;
+    return this.timeFromMomentZero;
   }
 
 
   static compare(a: Edge, b: Edge): number {
-    return a._timeSinceTimeZero! < b._timeSinceTimeZero! ? -1 : a._timeSinceTimeZero! > b._timeSinceTimeZero! ? 1 : 0;
+    return a.timeFromMomentZero! < b.timeFromMomentZero! ? -1 : a.timeFromMomentZero! > b.timeFromMomentZero! ? 1 : 0;
   }
 
   toString(): string {
-    return `[${this.line.toString().padEnd(3)}] [${this.start.substring(0, 30).padEnd(30)} ${this.departureTime.toLocaleTimeString()}] -> ${this.cost.toString().padEnd(2)}min -> [${this.stop.substring(0, 30).padEnd(30)} ${this.arrivalTime.toLocaleTimeString()}] w podróży: ${this._timeSinceTimeZero.toString()} min `;
+    return `[${this.line.toString().padEnd(3)}] [${this.start.substring(0, 30).padEnd(30)} ${this.departureTime.toLocaleTimeString()}] -> ${this.rideCost.toString().padEnd(2)}min -> [${this.stop.substring(0, 30).padEnd(30)} ${this.arrivalTime.toLocaleTimeString()}] w podróży: ${this.timeFromMomentZero.toString()} min `;
   }
 }
 
 function calculateMinutesDifference(start: Date, end: Date): number {
-  const startDate = new Date(start)
+  const beginDate = new Date(start)
   const endDate = new Date(end)
-  const startSec = (startDate.getHours() * 60 + startDate.getMinutes());
-  const endSec = (endDate.getHours() * 60 + endDate.getMinutes());
-  return startSec > endSec ? 1440 - (startSec - endSec) :  endSec - startSec
+  const beginMinutes = (beginDate.getHours() * 60 + beginDate.getMinutes());
+  const endMinutes = (endDate.getHours() * 60 + endDate.getMinutes());
+  return beginMinutes > endMinutes ? 1440 - (beginMinutes - endMinutes) :  endMinutes - beginMinutes
 }
 
 
 export function getChangesAmount(path: edge[] | null): number {
   let lineChanges = 0;
-  let lineOfPrevEdge: string | undefined;
+  let previousLine: string | undefined;
   if (path !== null) {
-    lineOfPrevEdge = path[0].line;
+    previousLine = path[0].line;
     path.forEach((edge) => {
-      if (edge.line !== lineOfPrevEdge) {
+      if (edge.line !== previousLine) {
         lineChanges += 1;
-        lineOfPrevEdge = edge.line;
+        previousLine = edge.line;
       }
     });
   }
   return lineChanges
 }
 
-module.exports = { Graph, Node, Edge, getChangesAmount };

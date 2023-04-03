@@ -4,7 +4,7 @@ import { dijkstra } from './dijkstra';
 import { astar } from './astar';
 import moment from 'moment';
 
-import { manhattan_distance } from './astar';
+import { manhattan_distance } from './distances';
 
 import { graph, edge } from "./types"
 
@@ -79,7 +79,7 @@ function task1(graph: graph, start: string, end: string, startTime: Date): void 
     const [cost, path] = dijkstra(graph, start, end, startTime);
     const endTime = new Date();
     console.log('Dijkstra Algorithm:');
-    console.log(Object.entries(path).map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
     console.log(`Execution of Dijkstra algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${getChangesAmount(path)} times and had cost of: ${cost}`);
 }
 

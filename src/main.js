@@ -8,7 +8,7 @@ const graph_1 = require("./graph");
 const dijkstra_1 = require("./dijkstra");
 const astar_1 = require("./astar");
 const moment_1 = __importDefault(require("moment"));
-const astar_2 = require("./astar");
+const distances_1 = require("./distances");
 const indice_id = 0;
 const indice_id2 = 1;
 const indice_company = 2;
@@ -70,12 +70,12 @@ function task1(graph, start, end, startTime) {
     const [cost, path] = (0, dijkstra_1.dijkstra)(graph, start, end, startTime);
     const endTime = new Date();
     console.log('Dijkstra Algorithm:');
-    console.log(Object.entries(path).map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
     console.log(`Execution of Dijkstra algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path)} times and had cost of: ${cost}`);
 }
 function task2(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "t", astar_2.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "t", distances_1.manhattan_distance);
     const endTime = new Date();
     console.log('A* Algorithm - time:');
     console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
@@ -83,7 +83,7 @@ function task2(graph, start, end, startTime) {
 }
 function task3(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "p", astar_2.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "p", distances_1.manhattan_distance);
     const endTime = new Date();
     console.log('A* Algorithm - changes:');
     console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());

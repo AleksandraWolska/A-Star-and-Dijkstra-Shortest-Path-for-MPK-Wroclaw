@@ -1,31 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getChangesAmount = exports.Edge = exports.Node = exports.Graph = void 0;
-const indice_id = 0;
-const indice_company = 1;
-const indice_line = 2;
-const indice_departure_time = 3;
-const indice_arrival_time = 4;
-const indice_start = 5;
-const indice_end = 6;
-const indice_start_lat = 7;
-const indice_start_lon = 8;
-const indice_end_lat = 9;
-const indice_end_lon = 10;
+const idx_id = 0;
+const idx_company = 1;
+const idx_line = 2;
+const idx_departure_time = 3;
+const idx_arrival_time = 4;
+const idx_start = 5;
+const idx_end = 6;
+const idx_start_lat = 7;
+const idx_start_lon = 8;
+const idx_end_lat = 9;
+const idx_end_lon = 10;
 class Graph {
     constructor(csv_data, datetime) {
         this.lines = {};
         this.nodes = {};
         this.createGraph(csv_data, datetime);
-        this.sortEdges(datetime);
+        this.sortEdges();
     }
     createGraph(csv_data, datetime) {
         for (let row of csv_data) {
-            const start = row[indice_start];
-            const end = row[indice_end];
-            const line = row[indice_line];
-            const start_departure = row[indice_departure_time];
-            const end_arrival = row[indice_arrival_time];
+            const start = row[idx_start];
+            const end = row[idx_end];
+            const line = row[idx_line];
+            const start_departure = row[idx_departure_time];
+            const end_arrival = row[idx_arrival_time];
             const edge = new Edge(start, end, line, start_departure, end_arrival, datetime);
             if (!(line in this.lines))
                 this.lines[line] = {};
@@ -37,12 +37,12 @@ class Graph {
                 this.lines[line][start][end] = [];
             this.lines[line][start][end].push(edge);
             if (!(start in this.nodes))
-                this.nodes[start] = new Node(start, row[indice_start_lat], row[indice_start_lon]);
+                this.nodes[start] = new Node(start, row[idx_start_lat], row[idx_start_lon]);
             if (!(end in this.nodes))
-                this.nodes[end] = new Node(end, row[indice_end_lat], row[indice_end_lon]);
+                this.nodes[end] = new Node(end, row[idx_end_lat], row[idx_end_lon]);
         }
     }
-    sortEdges(datetime) {
+    sortEdges() {
         for (let [line, nodes] of Object.entries(this.lines)) {
             for (let [node, neighbours] of Object.entries(nodes)) {
                 //connectionEdge jest na linię i czas
@@ -65,8 +65,8 @@ exports.Graph = Graph;
 class Node {
     constructor(name, latitude, longitude) {
         this.name = name;
-        this.lat = latitude;
-        this.lon = longitude;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
     isEqual(other) {
         return this.name === other.name;
@@ -75,53 +75,49 @@ class Node {
 exports.Node = Node;
 class Edge {
     constructor(start, end, line, departureTime, arrivalTime, datetime) {
+        this.line = line;
         this.start = start;
         this.stop = end;
-        this.line = line;
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
         this.datetime = datetime;
-        this._timeSinceTimeZero = calculateMinutesDifference(datetime, this.departureTime);
-        this.cost = calculateMinutesDifference(departureTime, arrivalTime);
+        this.timeFromMomentZero = calculateMinutesDifference(datetime, this.departureTime);
+        this.rideCost = calculateMinutesDifference(departureTime, arrivalTime);
     }
-    clearTimeSinceTimeZero() {
-        this._timeSinceTimeZero = null;
-    }
-    timeSinceTimeZero(newTimeZero) {
-        if (this._timeSinceTimeZero === null) {
-            this._timeSinceTimeZero = calculateMinutesDifference(newTimeZero, this.departureTime);
+    setTimeFromMomentZero(newTimeZero) {
+        if (this.timeFromMomentZero === null) {
+            this.timeFromMomentZero = calculateMinutesDifference(newTimeZero, this.departureTime);
         }
-        return this._timeSinceTimeZero;
+        return this.timeFromMomentZero;
     }
     static compare(a, b) {
-        return a._timeSinceTimeZero < b._timeSinceTimeZero ? -1 : a._timeSinceTimeZero > b._timeSinceTimeZero ? 1 : 0;
+        return a.timeFromMomentZero < b.timeFromMomentZero ? -1 : a.timeFromMomentZero > b.timeFromMomentZero ? 1 : 0;
     }
     toString() {
-        return `[${this.line.toString().padEnd(3)}] [${this.start.substring(0, 30).padEnd(30)} ${this.departureTime.toLocaleTimeString()}] -> ${this.cost.toString().padEnd(2)}min -> [${this.stop.substring(0, 30).padEnd(30)} ${this.arrivalTime.toLocaleTimeString()}] w podróży: ${this._timeSinceTimeZero.toString()} min `;
+        return `[${this.line.toString().padEnd(3)}] [${this.start.substring(0, 30).padEnd(30)} ${this.departureTime.toLocaleTimeString()}] -> ${this.rideCost.toString().padEnd(2)}min -> [${this.stop.substring(0, 30).padEnd(30)} ${this.arrivalTime.toLocaleTimeString()}] w podróży: ${this.timeFromMomentZero.toString()} min `;
     }
 }
 exports.Edge = Edge;
 function calculateMinutesDifference(start, end) {
-    const startDate = new Date(start);
+    const beginDate = new Date(start);
     const endDate = new Date(end);
-    const startSec = (startDate.getHours() * 60 + startDate.getMinutes());
-    const endSec = (endDate.getHours() * 60 + endDate.getMinutes());
-    return startSec > endSec ? 1440 - (startSec - endSec) : endSec - startSec;
+    const beginMinutes = (beginDate.getHours() * 60 + beginDate.getMinutes());
+    const endMinutes = (endDate.getHours() * 60 + endDate.getMinutes());
+    return beginMinutes > endMinutes ? 1440 - (beginMinutes - endMinutes) : endMinutes - beginMinutes;
 }
 function getChangesAmount(path) {
     let lineChanges = 0;
-    let lineOfPrevEdge;
+    let previousLine;
     if (path !== null) {
-        lineOfPrevEdge = path[0].line;
+        previousLine = path[0].line;
         path.forEach((edge) => {
-            if (edge.line !== lineOfPrevEdge) {
+            if (edge.line !== previousLine) {
                 lineChanges += 1;
-                lineOfPrevEdge = edge.line;
+                previousLine = edge.line;
             }
         });
     }
     return lineChanges;
 }
 exports.getChangesAmount = getChangesAmount;
-module.exports = { Graph, Node, Edge, getChangesAmount };
 //# sourceMappingURL=graph.js.map

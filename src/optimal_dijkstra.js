@@ -29,21 +29,26 @@ function dijkstraTime(graph, sourceNode, momentZero) {
         }
     }
     const pq = new fastpriorityqueue_1.default((a, b) => a[0] < b[0]);
-    pq.add([0, sourceNode]);
+    pq.add([0, sourceNode, momentZero]);
     while (!pq.isEmpty()) {
-        const [currentCost, currentNode] = pq.poll();
-        if (!visitedNodes.has(currentNode)) {
-            visitedNodes.add(currentNode);
-        }
+        const [currentCost, currentNode, currentTime] = pq.poll();
+        if (visitedNodes.has(currentNode))
+            continue;
+        visitedNodes.add(currentNode);
+        if (currentCost > costs[currentNode])
+            continue;
         const bestNewNodes = {};
         for (const [line, nodes] of Object.entries(graph.lines)) {
             if (currentNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currentNode])) {
                     for (const edge of edges) {
-                        if (edge.timeFromMomentZero < currentCost)
+                        if (currentTime > edge.arrivalTime)
                             continue;
-                        let waitingTime = edge.timeFromMomentZero - currentCost;
+                        const waitingTime = Math.max(edge.timeFromMomentZero - currentCost, 0);
                         const changeTime = (edgesUsed[edge.start] && edge.line != ((_a = edgesUsed[edge.start]) === null || _a === void 0 ? void 0 : _a.line)) ? 1 : 0;
+                        const newTime = new Date(currentTime.getTime() + (edge.rideCost + waitingTime + changeTime) * 60 * 1000);
+                        if (newTime > edge.arrivalTime)
+                            continue;
                         const newCost = currentCost + edge.rideCost + waitingTime + changeTime;
                         if (newCost < costs[edge.stop]) {
                             costs[edge.stop] = newCost;
@@ -55,10 +60,10 @@ function dijkstraTime(graph, sourceNode, momentZero) {
             }
         }
         for (const [node, [cost, edge]] of Object.entries(bestNewNodes)) {
-            pq.add([cost, node]);
+            pq.add([cost, node, new Date(currentTime.getTime() + (edge.rideCost + Math.max(edge.timeFromMomentZero - cost, 0)) * 60 * 1000)]);
         }
     }
     return [costs, edgesUsed];
 }
 exports.dijkstraTime = dijkstraTime;
-//# sourceMappingURL=dijkstra.js.map
+//# sourceMappingURL=optimal_dijkstra.js.map

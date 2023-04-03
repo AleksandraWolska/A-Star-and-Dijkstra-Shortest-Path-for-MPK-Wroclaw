@@ -1,37 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.astarLines = exports.astarTime = exports.astar = exports.manhattan_distance = void 0;
+exports.astarLines = exports.astarTime = exports.astar = void 0;
 const FastPriorityQueue = require('fastpriorityqueue');
-function manhattan_distance(a, b) {
-    return Math.abs(a.lat - b.lat) + Math.abs(a.lon - b.lon);
-}
-exports.manhattan_distance = manhattan_distance;
-function euclidean_distance(a, b) {
-    return Math.sqrt(Math.pow((a.lat - b.lat), 2) + Math.pow((a.lon - b.lon), 2));
-}
-//   function towncenter_distance(a: node, b: node): number {
-//     return euclidean_distance(a, { id: '', lat: 0, lon: 0 }) + euclidean_distance({ id: '', lat: 0, lon: 0 }, b);
-//   }
-function unidimensional_distance(a, b) {
-    return Math.max(Math.abs(a.lat - b.lat), Math.abs(a.lon - b.lon));
-}
-function cosine_distance(a, b) {
-    const dot_product = a.lon * b.lon + a.lat * b.lat;
-    const magnitude_a = Math.sqrt(Math.pow(a.lon, 2) + Math.pow(a.lat, 2));
-    const magnitude_b = Math.sqrt(Math.pow(b.lon, 2) + Math.pow(b.lat, 2));
-    return 1 - dot_product / (magnitude_a * magnitude_b);
-}
-function chebyshev_distance(a, b) {
-    return Math.max(Math.abs(a.lon - b.lon), Math.abs(a.lat - b.lat));
-}
-function astar(graph, start, goal, time_zero, criteria, heurestics) {
+function astar(graph, start, goal, time_zero, criteria, costEstimationFunction) {
     let costs = null;
     let edgeToNode = null;
     if (criteria === "t") {
-        [costs, edgeToNode] = astarTime(graph, start, goal, time_zero, heurestics);
+        [costs, edgeToNode] = astarTime(graph, start, goal, costEstimationFunction);
     }
     else if (criteria === "p") {
-        [costs, edgeToNode] = astarLines(graph, start, goal, time_zero, heurestics);
+        [costs, edgeToNode] = astarLines(graph, start, goal, costEstimationFunction);
     }
     const path = [];
     let currNode = goal;
@@ -43,111 +21,100 @@ function astar(graph, start, goal, time_zero, criteria, heurestics) {
     return [costs[goal], path];
 }
 exports.astar = astar;
-function astarTime(graph, start, goal, time_zero, heurestic_fn) {
-    const f_costs = {};
-    const g_costs = {};
-    const edgeToNode = {};
-    const pq = new FastPriorityQueue((a, b) => a[0] < b[0]); // priority queue
+function astarTime(graph, start, goal, costEstimationFunction) {
+    const fFuncCosts = {};
+    const gFuncCosts = {};
+    const edgesUsed = {};
+    const openPQ = new FastPriorityQueue((a, b) => a[0] < b[0]);
     for (const nodes of Object.values(graph.lines)) {
         for (const node of Object.keys(nodes)) {
-            f_costs[node] = Infinity;
-            g_costs[node] = Infinity;
-            edgeToNode[node] = null;
+            fFuncCosts[node] = Infinity;
+            gFuncCosts[node] = Infinity;
+            edgesUsed[node] = null;
         }
     }
-    f_costs[start] = 0;
-    g_costs[start] = 0;
-    pq.add([0, 0, start]);
-    while (!pq.isEmpty()) {
-        const [_, currTime, currNode] = pq.poll();
-        if (currNode == goal) {
-            return [g_costs, edgeToNode];
-        }
-        if (currTime > g_costs[currNode]) {
+    fFuncCosts[start] = 0;
+    gFuncCosts[start] = 0;
+    openPQ.add([0, 0, start]);
+    while (!openPQ.isEmpty()) {
+        const [_, currTime, currNode] = openPQ.poll();
+        if (currNode == goal)
+            return [gFuncCosts, edgesUsed];
+        if (currTime > gFuncCosts[currNode])
             continue;
-        }
-        const bestNewNodes = {};
+        const candidateNodes = {};
         for (const [line, nodes] of Object.entries(graph.lines)) {
             if (currNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
                     for (const edge of edges) {
-                        //const timeSinceZero = edge.timeSinceTimeZero(time_zero);
-                        if (edge._timeSinceTimeZero < currTime) {
+                        if (edge.timeFromMomentZero < currTime)
                             continue;
-                        }
-                        const waiting_time = edge._timeSinceTimeZero - currTime;
-                        const newCost = currTime + waiting_time + edge.cost;
-                        if (newCost < g_costs[edge.stop]) {
-                            g_costs[edge.stop] = newCost;
-                            const magic_number = 10;
-                            f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
-                            edgeToNode[edge.stop] = edge;
-                            pq.add([f_costs[edge.stop], newCost, edge.stop]);
-                            bestNewNodes[edge.stop] = [f_costs[edge.stop], newCost];
+                        const waiting_time = edge.timeFromMomentZero - currTime;
+                        const newCost = currTime + waiting_time + edge.rideCost;
+                        if (newCost < gFuncCosts[edge.stop]) {
+                            gFuncCosts[edge.stop] = newCost;
+                            const estFuncPower = 10;
+                            fFuncCosts[edge.stop] = newCost + estFuncPower * costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+                            edgesUsed[edge.stop] = edge;
+                            openPQ.add([fFuncCosts[edge.stop], newCost, edge.stop]);
+                            candidateNodes[edge.stop] = [fFuncCosts[edge.stop], newCost];
                         }
                     }
                 }
             }
         }
-        for (const [node, prio_cost] of Object.entries(bestNewNodes)) {
-            pq.add([...prio_cost, node]);
+        for (const [node, prio_cost] of Object.entries(candidateNodes)) {
+            openPQ.add([...prio_cost, node]);
         }
     }
     return null;
 }
 exports.astarTime = astarTime;
-function astarLines(graph, start, goal, momentZero, costEstimationFunction) {
+function astarLines(graph, start, goal, costEstimationFunction) {
     var _a, _b;
-    const f_costs = {};
-    const g_costs = {};
-    const edge_to_node = {};
+    const fFuncCosts = {};
+    const gFunctCosts = {};
+    const edgesUsed = {};
     for (const nodes of Object.values(graph.lines)) {
         for (const node of Object.keys(nodes)) {
-            f_costs[node] = Infinity;
-            g_costs[node] = Infinity;
-            edge_to_node[node] = null;
+            fFuncCosts[node] = Infinity;
+            gFunctCosts[node] = Infinity;
+            edgesUsed[node] = null;
         }
     }
-    f_costs[start] = 0;
-    g_costs[start] = 0;
+    fFuncCosts[start] = 0;
+    gFunctCosts[start] = 0;
     // priority, curr_line, node
-    const pq = new FastPriorityQueue((a, b) => a[0] < b[0]);
-    pq.add([0, '', start]);
-    while (!pq.isEmpty()) {
-        const [curr_cost_lines, curr_line, curr_node] = pq.poll();
-        if (curr_node == goal) {
-            return [f_costs, edge_to_node];
+    const openPQ = new FastPriorityQueue((first, second) => first[0] < second[0]);
+    openPQ.add([0, '', start]);
+    while (!openPQ.isEmpty()) {
+        const [curr_cost_lines, currentLine, currentNode] = openPQ.poll();
+        if (currentNode == goal) {
+            return [fFuncCosts, edgesUsed];
         }
-        const best_new_nodes = {};
+        const candidateNodes = {};
         for (const [line, nodes] of Object.entries(graph.lines)) {
-            if (curr_node in nodes) {
-                for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
+            if (currentNode in nodes) {
+                for (const [neighbour, edges] of Object.entries(nodes[currentNode])) {
                     for (const edge of edges) {
-                        // console.log("dep" + edge.departureTime)
-                        // //console.log(edge_to_node[curr_node].arrivalTime)
-                        // console.log("arr" + edge_to_node[curr_node]?.arrivalTime)
-                        //if(Object.keys(edge_to_node).length == 0  || edge.departureTime >= edge_to_node[curr_node].arrivalTime) {
-                        if (((_a = edge_to_node[curr_node]) === null || _a === void 0 ? void 0 : _a.arrivalTime) == undefined || edge.departureTime >= ((_b = edge_to_node[curr_node]) === null || _b === void 0 ? void 0 : _b.arrivalTime)) {
-                            let g = g_costs[curr_node];
-                            if (curr_line != edge.line) {
-                                g += 10;
-                            }
-                            let newCost = g;
-                            if (newCost < g_costs[edge.stop]) {
-                                g_costs[edge.stop] = newCost;
-                                f_costs[edge.stop] = newCost + costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
-                                edge_to_node[edge.stop] = edge;
-                                pq.add([f_costs[edge.stop], edge.line, edge.stop]);
-                                best_new_nodes[edge.stop] = [f_costs[edge.stop], newCost];
+                        if (((_a = edgesUsed[currentNode]) === null || _a === void 0 ? void 0 : _a.arrivalTime) == undefined || edge.departureTime >= ((_b = edgesUsed[currentNode]) === null || _b === void 0 ? void 0 : _b.arrivalTime)) {
+                            let gCurrentNodeCost = gFunctCosts[currentNode];
+                            if (currentLine != edge.line)
+                                gCurrentNodeCost += 8;
+                            if (gCurrentNodeCost < gFunctCosts[edge.stop]) {
+                                gFunctCosts[edge.stop] = gCurrentNodeCost;
+                                fFuncCosts[edge.stop] = gCurrentNodeCost + costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+                                edgesUsed[edge.stop] = edge;
+                                openPQ.add([fFuncCosts[edge.stop], edge.line, edge.stop]);
+                                candidateNodes[edge.stop] = [fFuncCosts[edge.stop], gCurrentNodeCost];
                             }
                         }
                     }
-                    // }
                 }
             }
         }
-        for (const [node, prio_cost] of Object.entries(best_new_nodes)) {
-            pq.add([...prio_cost, node]);
+        for (const [candidateNode, candidateCost] of Object.entries(candidateNodes)) {
+            openPQ.add([...candidateCost, candidateNode]);
         }
     }
     return null;
