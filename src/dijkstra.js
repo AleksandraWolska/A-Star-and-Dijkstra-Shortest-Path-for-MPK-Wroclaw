@@ -1,72 +1,58 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const { Graph, Edge } = require('./graph.js');
-const { Criteria } = require('./utils.js');
-const FastPriorityQueue = require('fastpriorityqueue');
-function dijkstra(graph, start, goal, timeZero) {
-    return dijkstraShortestPath(graph, start, goal, timeZero);
-}
-function dijkstraShortestPath(graph, start, goal, timeZero) {
-    const [costs, edgeToNode] = dijkstraTime(graph, start, timeZero);
+exports.dijkstraTime = exports.dijkstra = void 0;
+const fastpriorityqueue_1 = __importDefault(require("fastpriorityqueue"));
+function dijkstra(graph, sourceNode, destinationNode, momentZero) {
+    const [costs, edgesUsed] = dijkstraTime(graph, sourceNode, momentZero);
     const path = [];
-    let currNode = goal;
-    while (currNode !== start) {
-        //   console.log('currNode:', currNode);
-        //   console.log('edgeToNode[currNode]:', edgeToNode[currNode]);
-        path.push(edgeToNode[currNode]);
-        currNode = edgeToNode[currNode].start;
+    let currentNode = destinationNode;
+    while (currentNode !== sourceNode) {
+        // console.log('Przystanek: ', currNode.toUpperCase());
+        // console.log('Pokonano: ', edgeToNode[currNode]);
+        path.push(edgesUsed[currentNode]);
+        currentNode = edgesUsed[currentNode].start;
     }
     path.reverse();
-    return [costs[goal], path];
+    return [costs[destinationNode], path];
 }
-function dijkstraTime(graph, start, timeZero) {
+exports.dijkstra = dijkstra;
+function dijkstraTime(graph, sourceNode, momentZero) {
+    var _a;
     const costs = {};
-    const edgeToNode = {};
-    const visited = new Set();
+    const edgesUsed = {};
+    const visitedNodes = new Set();
     for (const nodes of Object.values(graph.lines)) {
         for (const node in nodes) {
             costs[node] = Infinity;
-            edgeToNode[node] = null;
+            edgesUsed[node] = null;
         }
     }
-    //  console.log("\n\n\nentries egde===================\n\n\n" + Object.entries(graph.lines) + "\n\ntyle")
-    const pq = new FastPriorityQueue((a, b) => a[0] < b[0]);
-    //  console.log(pq)
-    pq.add([0, start]);
-    //  console.log(pq)
+    const pq = new fastpriorityqueue_1.default((a, b) => a[0] < b[0]);
+    pq.add([0, sourceNode]);
     while (!pq.isEmpty()) {
-        const [currCost, currNode] = pq.poll();
-        if (visited.has(currNode)) {
+        const [currentCost, currentNode] = pq.poll();
+        if (visitedNodes.has(currentNode))
             continue;
-        }
-        else {
-            visited.add(currNode);
-        }
-        //    console.log("currCost > costs[currNode]" + (currCost > costs[currNode]))
-        if (currCost > costs[currNode]) {
+        visitedNodes.add(currentNode);
+        if (currentCost > costs[currentNode])
             continue;
-        }
         const bestNewNodes = {};
-        //   console.log("Object.entries(graph.lines) length" + Object.keys(graph.lines).length)
         for (const [line, nodes] of Object.entries(graph.lines)) {
-            //   console.log("2. line: " + line)
-            if (currNode in nodes) {
-                //    console.log("3. node: " + currNode)
-                for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
-                    //     console.log("\n4. egdes: " + edges + "\n\n")
+            if (currentNode in nodes) {
+                for (const [neighbour, edges] of Object.entries(nodes[currentNode])) {
                     for (const edge of edges) {
-                        //       console.log("\n5. egde: " + edge + "\n\n")
-                        //       console.log("current cost" + currCost)
-                        const timeSinceZero = edge.timeSinceTimeZero(timeZero);
-                        //     console.log("timesincezero" + timeSinceZero)
-                        if (timeSinceZero < currCost) {
+                        const timeSinceZero = edge.timeSinceTimeZero(momentZero);
+                        if (timeSinceZero < currentCost)
                             continue;
-                        }
-                        const waitingTime = timeSinceZero - currCost;
-                        const newCost = currCost + edge.cost + waitingTime;
+                        const waitingTime = timeSinceZero - currentCost;
+                        const changeTime = (edgesUsed[edge.start] && edge.line != ((_a = edgesUsed[edge.start]) === null || _a === void 0 ? void 0 : _a.line)) ? 1 : 0;
+                        const newCost = currentCost + edge.cost + waitingTime + changeTime;
                         if (newCost < costs[edge.stop]) {
                             costs[edge.stop] = newCost;
-                            edgeToNode[edge.stop] = edge;
+                            edgesUsed[edge.stop] = edge;
                             bestNewNodes[edge.stop] = newCost;
                         }
                     }
@@ -77,11 +63,7 @@ function dijkstraTime(graph, start, timeZero) {
             pq.add([cost, node]);
         }
     }
-    console.log("koszt" + Object.entries(costs) + "  \n\nedgetonode" + Object.values(edgeToNode));
-    return [costs, edgeToNode];
+    return [costs, edgesUsed];
 }
-module.exports = {
-    dijkstra,
-    dijkstraShortestPath,
-};
+exports.dijkstraTime = dijkstraTime;
 //# sourceMappingURL=dijkstra.js.map

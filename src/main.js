@@ -3,26 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const csv = require('csv-parser');
-const fs = require('fs');
-const { Graph, Edge } = require('./graph');
-const { dijkstraShortestPath } = require('./dijkstra');
-const { astarShortestPath } = require('./astar');
-const { Criteria } = require('./utils');
-//const moment = require('moment');
-const moment_1 = __importDefault(require("moment"));
+const fs_1 = __importDefault(require("fs"));
+const graph_1 = require("./graph");
+const dijkstra_1 = require("./dijkstra");
 const astar_1 = require("./astar");
-// const indice_id = 0;
-// const indice_company = 1;
-// const indice_line = 2;
-// const indice_departure_time = 3;
-// const indice_arrival_time = 4;
-// const indice_start = 5;
-// const indice_end = 6;
-// const indice_start_lat = 7;
-// const indice_start_lon = 8;
-// const indice_end_lat = 9;
-// const indice_end_lon = 10;
+const moment_1 = __importDefault(require("moment"));
+const astar_2 = require("./astar");
 const indice_id = 0;
 const indice_id2 = 1;
 const indice_company = 2;
@@ -41,12 +27,21 @@ function clearRow(row) {
     let arrivalTime = row[indice_arrival_time];
     departureTime = `${(parseInt(departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(0, 2)) % 24)}${departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(2)}`;
     arrivalTime = `${(parseInt(arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(0, 2)) % 24)}${arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(2)}`;
+    // const timeString = '19:58:00'; // example time in hh:mm:ss format
+    // const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    // const today = new Date();
+    // const datetime = new Date();
+    // datetime.setHours(hours);
+    // datetime.setMinutes(minutes);
+    // datetime.setSeconds(seconds);
+    // console.log(datetime)
     //console.log();
+    //console.log(departureTime)
     return [...row.slice(0, indice_departure_time), departureTime, arrivalTime, ...row.slice(indice_arrival_time + 1)];
 }
 function loadCSV(filename = 'connection_graph.csv') {
     const data = [];
-    const file = fs.readFileSync(filename, { encoding: 'utf-8' });
+    const file = fs_1.default.readFileSync(filename, { encoding: 'utf-8' });
     const rows = file.split('\n');
     rows.splice(0, 1);
     for (const row of rows) {
@@ -70,66 +65,48 @@ function loadCSV(filename = 'connection_graph.csv') {
     }
     return data;
 }
-// function loadCsv() {
-//     const data = [];
-//     fs.createReadStream('data.csv')
-//         .pipe(csv())
-//         .on('data', (row) => {
-//             data.push(row);
-//         })
-//         .on('end', () => {
-//             console.log('CSV file successfully processed');
-//         });
-//     return data;
-// }
 function task1(graph, start, end, startTime) {
-    // const graphData = fs.readFileSync('./graph.json');
-    // const graph : graph = JSON.parse(graphData);
-    //  console.log(graph);
     const beginTime = new Date();
-    const [cost, path] = dijkstraShortestPath(graph, start, end, startTime);
+    const [cost, path] = (0, dijkstra_1.dijkstra)(graph, start, end, startTime);
     const endTime = new Date();
     console.log('Dijkstra Algorithm:');
-    console.log(path, startTime);
-    console.log(`Execution of Dijkstra algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
+    console.log(Object.entries(path).map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(`Execution of Dijkstra algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path)} times and had cost of: ${cost}`);
 }
 function task2(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = astarShortestPath(graph, start, end, startTime, "t", astar_1.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "t", astar_2.manhattan_distance);
     const endTime = new Date();
-    console.log('A* Algorithm:');
-    console.log(path, startTime);
-    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
+    console.log('A* Algorithm - time:');
+    console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path)} times and had cost of: ${cost}`);
 }
 function task3(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = astarShortestPath(graph, start, end, startTime, "p", astar_1.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "p", astar_2.manhattan_distance);
     const endTime = new Date();
-    console.log('A* Algorithm:');
-    console.log(path, startTime);
-    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}`);
+    console.log('A* Algorithm - changes:');
+    console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path)} times and had cost of: ${cost}`);
 }
 function main() {
     const data = loadCSV();
-    let graph = new Graph(data);
-    // const data = loadCSV();
-    // const graph: graph = new Graph(data);
-    // Save the graph to a file
-    //fs.writeFileSync('graph.json', JSON.stringify(graph));
-    // task1(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
-    // graph = new Graph(data);
-    // task2(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
-    // graph = new Graph(data);
-    // task3(graph, 'Prusa', 'DWORZEC GŁÓWNY', new Date('2023-03-28T19:58:00'))
-    const timeString = '19:58:00'; // example time in hh:mm:ss format
-    const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    const today = new Date();
-    const datetime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, seconds);
+    let datetime = (0, moment_1.default)('17:00:00', 'HH:mm:ss').toDate();
+    let graph = new graph_1.Graph(data);
+    // const timeString = '19:58:00'; // example time in hh:mm:ss format
+    // const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    // const today = new Date();
+    // const datetime = new Date();
+    // datetime.setHours(hours);
+    // datetime.setMinutes(minutes);
+    // datetime.setSeconds(seconds);
+    // console.log(datetime)
+    console.log("main datetime:" + datetime);
     task1(graph, 'Prusa', 'Kwiska', datetime);
-    graph = new Graph(data);
-    task2(graph, 'Prusa', 'Kwiska', datetime);
-    graph = new Graph(data);
-    task3(graph, 'Prusa', 'Kwiska', datetime);
+    let graph2 = new graph_1.Graph(data);
+    task2(graph2, 'Prusa', 'Kwiska', datetime);
+    let graph3 = new graph_1.Graph(data);
+    task3(graph3, 'Prusa', 'Kwiska', datetime);
 }
 main();
 //# sourceMappingURL=main.js.map

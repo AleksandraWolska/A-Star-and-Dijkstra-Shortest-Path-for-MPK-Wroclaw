@@ -29,7 +29,7 @@ export function manhattan_distance(a: node, b: node): number {
   }
   
 
-  export function astarShortestPath(graph: graph, start: string, goal: string, time_zero: Date, criteria: string, heurestics: (a: node, b: node)=> number): [number, edge[]] {
+  export function astar(graph: graph, start: string, goal: string, time_zero: Date, criteria: string, heurestics: (a: node, b: node)=> number): [number, edge[]] {
     let costs: { [key: string]: number } | null = null;
     let edgeToNode:  { [key: string]: edge } | null = null;
     
@@ -51,7 +51,7 @@ export function manhattan_distance(a: node, b: node): number {
 
 
 
-function astarTime(graph: graph, start: string, goal: string, time_zero: Date, heurestic_fn: (a: node, b: node)=> number):  [{ [key: string]: number }, { [key: string]: edge }] {
+export function astarTime(graph: graph, start: string, goal: string, time_zero: Date, heurestic_fn: (a: node, b: node)=> number):  [{ [key: string]: number }, { [key: string]: edge }] {
     const f_costs: { [key: string]: number } = {};
     const g_costs: { [key: string]: number } = {};
     const edgeToNode: { [key: string]: edge } = {};
@@ -91,7 +91,7 @@ function astarTime(graph: graph, start: string, goal: string, time_zero: Date, h
                         const newCost = currTime + waiting_time + edge.cost;
                         if (newCost < g_costs[edge.stop]) {
                             g_costs[edge.stop] = newCost;
-                            const magic_number = 100000;
+                            const magic_number = 10;
                             f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
                             edgeToNode[edge.stop] = edge;
                             pq.add([f_costs[edge.stop], newCost, edge.stop]);
@@ -110,12 +110,12 @@ function astarTime(graph: graph, start: string, goal: string, time_zero: Date, h
 }
 
 
-function astarLines(
+export function astarLines(
     graph: graph,
     start: string,
     goal: string,
-    time_zero: Date,
-    heurestic_fn: (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => number
+    momentZero: Date,
+    costEstimationFunction: (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => number
   ): [{ [key: string]: number }, { [key: string]: edge }] {
     const f_costs: { [key: string]: number } = {};
     const g_costs: { [key: string]: number } = {};
@@ -150,7 +150,7 @@ function astarLines(
           for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
             for (const edge of edges) {
 
-            if (edge.departureTime.getTime() > time_zero.getTime()){
+            if (edge.departureTime.getTime() >= momentZero.getTime()){
 
 
               let g = g_costs[curr_node];
@@ -160,15 +160,15 @@ function astarLines(
   
               let newCost = g
 
-               const timeSinceZero = edge.timeSinceTimeZero(time_zero);
+              edge.timeSinceTimeZero(momentZero);
              //const waiting_time = timeSinceZero - curr_cost_lines;
               //let newCost = g + waiting_time;
 
 
               if (newCost < g_costs[edge.stop]) {
                 g_costs[edge.stop] = newCost;
-                const magic_number = 10;
-                f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
+
+                f_costs[edge.stop] = newCost +  costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                 edge_to_node[edge.stop] = edge;
                 pq.add([f_costs[edge.stop], edge.line, edge.stop]);
                 best_new_nodes[edge.stop] = [f_costs[edge.stop], newCost];

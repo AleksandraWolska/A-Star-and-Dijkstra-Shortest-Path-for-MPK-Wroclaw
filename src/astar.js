@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.astarShortestPath = exports.manhattan_distance = void 0;
+exports.astarLines = exports.astarTime = exports.astar = exports.manhattan_distance = void 0;
 const FastPriorityQueue = require('fastpriorityqueue');
 function manhattan_distance(a, b) {
     return Math.abs(a.lat - b.lat) + Math.abs(a.lon - b.lon);
@@ -24,7 +24,7 @@ function cosine_distance(a, b) {
 function chebyshev_distance(a, b) {
     return Math.max(Math.abs(a.lon - b.lon), Math.abs(a.lat - b.lat));
 }
-function astarShortestPath(graph, start, goal, time_zero, criteria, heurestics) {
+function astar(graph, start, goal, time_zero, criteria, heurestics) {
     let costs = null;
     let edgeToNode = null;
     if (criteria === "t") {
@@ -42,7 +42,7 @@ function astarShortestPath(graph, start, goal, time_zero, criteria, heurestics) 
     path.reverse();
     return [costs[goal], path];
 }
-exports.astarShortestPath = astarShortestPath;
+exports.astar = astar;
 function astarTime(graph, start, goal, time_zero, heurestic_fn) {
     const f_costs = {};
     const g_costs = {};
@@ -79,7 +79,7 @@ function astarTime(graph, start, goal, time_zero, heurestic_fn) {
                         const newCost = currTime + waiting_time + edge.cost;
                         if (newCost < g_costs[edge.stop]) {
                             g_costs[edge.stop] = newCost;
-                            const magic_number = 100000;
+                            const magic_number = 10;
                             f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
                             edgeToNode[edge.stop] = edge;
                             pq.add([f_costs[edge.stop], newCost, edge.stop]);
@@ -95,7 +95,8 @@ function astarTime(graph, start, goal, time_zero, heurestic_fn) {
     }
     return null;
 }
-function astarLines(graph, start, goal, time_zero, heurestic_fn) {
+exports.astarTime = astarTime;
+function astarLines(graph, start, goal, momentZero, costEstimationFunction) {
     const f_costs = {};
     const g_costs = {};
     const edge_to_node = {};
@@ -121,19 +122,18 @@ function astarLines(graph, start, goal, time_zero, heurestic_fn) {
             if (curr_node in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[curr_node])) {
                     for (const edge of edges) {
-                        if (edge.departureTime.getTime() > time_zero.getTime()) {
+                        if (edge.departureTime.getTime() >= momentZero.getTime()) {
                             let g = g_costs[curr_node];
                             if (curr_line != edge.line) {
                                 g += 10;
                             }
                             let newCost = g;
-                            const timeSinceZero = edge.timeSinceTimeZero(time_zero);
+                            edge.timeSinceTimeZero(momentZero);
                             //const waiting_time = timeSinceZero - curr_cost_lines;
                             //let newCost = g + waiting_time;
                             if (newCost < g_costs[edge.stop]) {
                                 g_costs[edge.stop] = newCost;
-                                const magic_number = 10;
-                                f_costs[edge.stop] = newCost + magic_number * heurestic_fn(graph.nodes[edge.stop], graph.nodes[goal]);
+                                f_costs[edge.stop] = newCost + costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                                 edge_to_node[edge.stop] = edge;
                                 pq.add([f_costs[edge.stop], edge.line, edge.stop]);
                                 best_new_nodes[edge.stop] = [f_costs[edge.stop], newCost];
@@ -149,4 +149,5 @@ function astarLines(graph, start, goal, time_zero, heurestic_fn) {
     }
     return null;
 }
+exports.astarLines = astarLines;
 //# sourceMappingURL=astar.js.map
