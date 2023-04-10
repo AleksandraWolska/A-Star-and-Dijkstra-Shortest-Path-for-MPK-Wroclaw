@@ -27,16 +27,6 @@ function clearRow(row) {
     let arrivalTime = row[indice_arrival_time];
     departureTime = `${(parseInt(departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(0, 2)) % 24)}${departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(2)}`;
     arrivalTime = `${(parseInt(arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(0, 2)) % 24)}${arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(2)}`;
-    // const timeString = '19:58:00'; // example time in hh:mm:ss format
-    // const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    // const today = new Date();
-    // const datetime = new Date();
-    // datetime.setHours(hours);
-    // datetime.setMinutes(minutes);
-    // datetime.setSeconds(seconds);
-    // console.log(datetime)
-    //console.log();
-    //console.log(departureTime)
     return [...row.slice(0, indice_departure_time), departureTime, arrivalTime, ...row.slice(indice_arrival_time + 1)];
 }
 function loadCSV(filename = 'connection_graph.csv') {
@@ -75,15 +65,18 @@ function task1(graph, start, end, startTime) {
 }
 function task2(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "t", distances_1.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, "t", distances_1.manhattan_distance);
     const endTime = new Date();
+    const beginTime2 = new Date();
+    const [cost2, path2] = (0, astar_1.astar)(graph, start, end, "t", distances_1.euclidean_distance);
+    const endTime2 = new Date();
     console.log('A* Algorithm - time:');
-    console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
-    console.log(`Execution of A* algorithm took: ${endTime.getTime() - beginTime.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path)} times and had cost of: ${cost}`);
+    console.log(path2.map(edge => edge.toString()), startTime.toLocaleDateString());
+    console.log(`Execution of A* algorithm took: ${endTime2.getTime() - beginTime2.getTime()}, line changed ${(0, graph_1.getChangesAmount)(path2)} times and had cost of: ${cost2}`);
 }
 function task3(graph, start, end, startTime) {
     const beginTime = new Date();
-    const [cost, path] = (0, astar_1.astar)(graph, start, end, startTime, "p", distances_1.manhattan_distance);
+    const [cost, path] = (0, astar_1.astar)(graph, start, end, "p", distances_1.manhattan_distance);
     const endTime = new Date();
     console.log('A* Algorithm - changes:');
     console.log(path.map(edge => edge.toString()), startTime.toLocaleDateString());
@@ -93,20 +86,10 @@ function main() {
     const data = loadCSV();
     let datetime = (0, moment_1.default)('17:00:00', 'HH:mm:ss').toDate();
     let graph = new graph_1.Graph(data, datetime);
-    // const timeString = '19:58:00'; // example time in hh:mm:ss format
-    // const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    // const today = new Date();
-    // const datetime = new Date();
-    // datetime.setHours(hours);
-    // datetime.setMinutes(minutes);
-    // datetime.setSeconds(seconds);
-    // console.log(datetime)
     console.log("main datetime:" + datetime);
     task1(graph, 'Prusa', 'Kwiska', datetime);
-    let graph2 = new graph_1.Graph(data, datetime);
-    task2(graph2, 'Prusa', 'Kwiska', datetime);
-    let graph3 = new graph_1.Graph(data, datetime);
-    task3(graph3, 'Prusa', 'Kwiska', datetime);
+    task2(graph, 'Prusa', 'Kwiska', datetime);
+    task3(graph, 'Prusa', 'Kwiska', datetime);
 }
 main();
 //# sourceMappingURL=main.js.map

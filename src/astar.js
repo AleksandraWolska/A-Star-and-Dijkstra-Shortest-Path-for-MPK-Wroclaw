@@ -3,16 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.astarChangesHeuristics = exports.astarTimeHeuristics = exports.astar = void 0;
+exports.astarChangesCriteria = exports.astarTimeCriteria = exports.astar = void 0;
 const fastpriorityqueue_1 = __importDefault(require("fastpriorityqueue"));
-function astar(graph, start, goal, time_zero, criteria, costEstimationFunction) {
+function astar(graph, start, goal, criteria, heuristics) {
     let costs = null;
     let edgeToNode = null;
     if (criteria === "t") {
-        [costs, edgeToNode] = astarTimeHeuristics(graph, start, goal, costEstimationFunction);
+        [costs, edgeToNode] = astarTimeCriteria(graph, start, goal, heuristics);
     }
     else if (criteria === "p") {
-        [costs, edgeToNode] = astarChangesHeuristics(graph, start, goal, costEstimationFunction);
+        [costs, edgeToNode] = astarChangesCriteria(graph, start, goal, heuristics);
     }
     const path = [];
     let currNode = goal;
@@ -24,23 +24,11 @@ function astar(graph, start, goal, time_zero, criteria, costEstimationFunction) 
     return [costs[goal], path];
 }
 exports.astar = astar;
-/**
-
-Funkcja znajdująca najkrótszą ścieżkę między dwoma węzłami grafu z wykorzystaniem algorytmu A* i heurystyki czasowej.
-@param {object} graph - graf, w którym znajdują się węzły i krawędzie
-@param {string} start - węzeł początkowy
-@param {string} goal - węzeł końcowy
-@param {function} costEstimationFunction - funkcja heurystyczna określająca koszt przeszukania grafu
-@returns {array} - tablica z dwoma słownikami: kosztami najkrótszej ścieżki i użytych krawędzi
-*/
-function astarTimeHeuristics(graph, start, goal, costEstimationFunction) {
-    // Inicjalizacja słowników kosztów f i g oraz użytych krawędzi.
+function astarTimeCriteria(graph, start, goal, heuristicsFunction) {
     const fFuncCosts = {};
     const gFuncCosts = {};
     const edgesUsed = {};
-    // Inicjalizacja kolejki priorytetowej zgodnie z kosztem funkcji f.
-    const openPQ = new fastpriorityqueue_1.default((a, b) => a[0] < b[0]);
-    // Inicjalizacja kosztów, kosztów heurystycznych, użytych krawędzi w początkowym węźle.
+    const heuristicPower = 10000;
     for (const nodes of Object.values(graph.lines)) {
         for (const node of Object.keys(nodes)) {
             fFuncCosts[node] = Infinity;
@@ -50,38 +38,27 @@ function astarTimeHeuristics(graph, start, goal, costEstimationFunction) {
     }
     fFuncCosts[start] = 0;
     gFuncCosts[start] = 0;
+    const openPQ = new fastpriorityqueue_1.default((a, b) => a[0] < b[0]);
     openPQ.add([0, 0, start]);
-    // Pętla główna algorytmu A*.
     while (!openPQ.isEmpty()) {
-        // Zdejmowanie z kolejki węzła o najniższym koszcie funkcji f.
         const [_, currTime, currNode] = openPQ.poll();
-        // Sprawdzenie, czy przeszukujemy już węzeł końcowy.
-        if (currNode == goal)
+        if (currNode === goal)
             return [gFuncCosts, edgesUsed];
-        // Sprawdzenie, czy węzeł ten nie został już przeszukany w innym węźle z niższym kosztem funkcji g.
         if (currTime > gFuncCosts[currNode])
             continue;
-        // Inicjalizacja słownika kandydatów na następne węzły.
         const candidateNodes = {};
-        // Przeglądanie krawędzi sąsiadujących z aktualnym węzłem.
         for (const [line, nodes] of Object.entries(graph.lines)) {
-            // Sprawdzenie, czy węzeł bieżący należy do linii
             if (currNode in nodes) {
-                // Pętla iterująca po sąsiadach węzła bieżącego
                 for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
-                    // Pętla iterująca po krawędziach węzła sąsiada
                     for (const edge of edges) {
-                        // Sprawdzenie, czy czas przejazdu krawędzi jest mniejszy niż czas bieżący
-                        if (edge.timeFromMomentZero < currTime)
-                            continue;
-                        // Obliczenie czasu oczekiwania i całkowitego kosztu przejazdu
-                        const waiting_time = edge.timeFromMomentZero - currTime;
-                        const newCost = currTime + waiting_time + edge.rideCost;
-                        // Aktualizacja kosztów, jeśli koszt przejazdu przez krawędź jest mniejszy
+                        const lineChangePenalty = edgesUsed[currNode] && edgesUsed[currNode].line !== edge.line ? 1 : 0;
+                        let newCost = edge.timeFromMomentZero + edge.rideCost;
+                        if (edge.timeFromMomentZero < currTime + lineChangePenalty) {
+                            newCost += 1440;
+                        }
                         if (newCost < gFuncCosts[edge.stop]) {
                             gFuncCosts[edge.stop] = newCost;
-                            const estFuncPower = 10;
-                            fFuncCosts[edge.stop] = newCost + estFuncPower * costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+                            fFuncCosts[edge.stop] = newCost + heuristicPower * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                             edgesUsed[edge.stop] = edge;
                             openPQ.add([fFuncCosts[edge.stop], newCost, edge.stop]);
                             candidateNodes[edge.stop] = [fFuncCosts[edge.stop], newCost];
@@ -90,84 +67,53 @@ function astarTimeHeuristics(graph, start, goal, costEstimationFunction) {
                 }
             }
         }
-        // Dodanie węzłów kandydujących do kolejki priorytetowej
         for (const [node, prio_cost] of Object.entries(candidateNodes)) {
             openPQ.add([...prio_cost, node]);
         }
     }
     return null;
 }
-exports.astarTimeHeuristics = astarTimeHeuristics;
-/**
-
-Funkcja używa algorytmu A* w celu znalezienia najkrótszej ścieżki między startem a celem.
-@param {graph} graph - graf, na którym szukamy najkrótszej ścieżki
-@param {string} start - węzeł startowy
-@param {string} goal - węzeł docelowy
-@param {(a: node, b: node) => number} costEstimationFunction - funkcja szacująca koszt przejścia między dwoma węzłami
-@returns {[costDict, pathDict]} - słownik kosztów najkrótszej ścieżki i słownik krawędzi użytych w najkrótszej ścieżce
-*/
-function astarChangesHeuristics(graph, start, goal, costEstimationFunction) {
-    var _a, _b;
-    // Inicjalizacja słowników kosztów i krawędzi użytych
+exports.astarTimeCriteria = astarTimeCriteria;
+function astarChangesCriteria(graph, start, goal, heuristicsFunction) {
     const fFuncCosts = {};
-    const gFunctCosts = {};
+    const gFuncCosts = {};
     const edgesUsed = {};
-    // Ustawienie wartości domyślnych dla słowników kosztów i krawędzi użytych
+    const heuristicPower = 10;
     for (const nodes of Object.values(graph.lines)) {
         for (const node of Object.keys(nodes)) {
             fFuncCosts[node] = Infinity;
-            gFunctCosts[node] = Infinity;
+            gFuncCosts[node] = Infinity;
             edgesUsed[node] = null;
         }
     }
-    // Ustawienie kosztu startowego dla węzła startowego
     fFuncCosts[start] = 0;
-    gFunctCosts[start] = 0;
-    // Inicjalizacja kolejki priorytetowej z węzłem startowym
-    const openPQ = new fastpriorityqueue_1.default((first, second) => first[0] < second[0]);
+    gFuncCosts[start] = 0;
+    const openPQ = new fastpriorityqueue_1.default((a, b) => a[0] < b[0]);
     openPQ.add([0, '', start]);
-    // Pętla główna
     while (!openPQ.isEmpty()) {
-        // Pobranie węzła z najmniejszym kosztem z kolejki priorytetowej
-        const [curr_cost_lines, currentLine, currentNode] = openPQ.poll();
-        // Jeśli osiągnęliśmy węzeł celowy, zwracamy wynik
-        if (currentNode == goal)
-            return [fFuncCosts, edgesUsed];
-        // Inicjalizacja słownika kandydatów na następne węzły
-        const candidateNodes = {};
-        // Pętla po liniach w grafie
+        const [_, currentLine, currentNode] = openPQ.poll();
+        if (currentNode === goal)
+            return [gFuncCosts, edgesUsed];
         for (const [line, nodes] of Object.entries(graph.lines)) {
-            // Sprawdzenie, czy aktualny węzeł znajduje się na tej linii
             if (currentNode in nodes) {
-                // Pętla po sąsiadach węzła
                 for (const [neighbour, edges] of Object.entries(nodes[currentNode])) {
-                    // Pętla po krawędziach danego sąsiada
                     for (const edge of edges) {
-                        // Sprawdzenie, czy krawędź może być użyta, czyli czy poprzednia krawędź na tej samej linii kończy się przed rozpoczęciem tej krawędzi
-                        if (((_a = edgesUsed[currentNode]) === null || _a === void 0 ? void 0 : _a.arrivalTime) == undefined || edge.departureTime >= ((_b = edgesUsed[currentNode]) === null || _b === void 0 ? void 0 : _b.arrivalTime)) {
-                            // Obliczenie kosztu dotychczasowego, uwzględniając zmianę linii (jeśli trzeba)
-                            let gCurrentNodeCost = gFunctCosts[currentNode];
-                            // Sprawdzenie, czy koszt dojścia do sąsiada jest mniejszy niż dotychczas znany
-                            if (gCurrentNodeCost < gFunctCosts[edge.stop]) {
-                                gFunctCosts[edge.stop] = gCurrentNodeCost;
-                                fFuncCosts[edge.stop] = gCurrentNodeCost + costEstimationFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+                        if (!edgesUsed[currentNode] || edge.departureTime >= edgesUsed[currentNode].arrivalTime) {
+                            const lineChangePenalty = edgesUsed[currentNode] && edgesUsed[currentNode].line !== edge.line ? 1 : 0;
+                            const newCost = gFuncCosts[currentNode] + lineChangePenalty;
+                            if (newCost < gFuncCosts[edge.stop]) {
+                                gFuncCosts[edge.stop] = newCost;
+                                fFuncCosts[edge.stop] = newCost + heuristicPower * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                                 edgesUsed[edge.stop] = edge;
-                                // Dodanie węzła do kolejki priorytetowej
                                 openPQ.add([fFuncCosts[edge.stop], edge.line, edge.stop]);
-                                candidateNodes[edge.stop] = [fFuncCosts[edge.stop], gCurrentNodeCost];
                             }
                         }
                     }
                 }
             }
         }
-        // Dodanie kandydatów do kolejki priorytetowej, sortując ich względem kosztu drogi do celu i kosztu dotychczasowej drogi
-        for (const [candidateNode, candidateCost] of Object.entries(candidateNodes)) {
-            openPQ.add([...candidateCost, candidateNode]);
-        }
     }
     return null;
 }
-exports.astarChangesHeuristics = astarChangesHeuristics;
+exports.astarChangesCriteria = astarChangesCriteria;
 //# sourceMappingURL=astar.js.map
