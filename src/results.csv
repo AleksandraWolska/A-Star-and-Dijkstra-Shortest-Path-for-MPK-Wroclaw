@@ -1,0 +1,9 @@
+algorithm,calculation_time,cost,end_time,line_changes
+Dijkstra Algorithm,112,31,31,2
+A* Algorithm - time - Manhattan,9,46,46,4
+A* Algorithm - time - Euclidean,8,46,46,4
+A* Algorithm - changes,67,2,33,2
+Dijkstra Algorithm,121,31,31,2
+A* Algorithm - time - Manhattan,4,46,46,4
+A* Algorithm - time - Euclidean,7,46,46,4
+A* Algorithm - changes,64,2,33,2
