@@ -47,9 +47,7 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
 
     if (currNode === goal) return [gFuncCosts, edgesUsed];
 
-    if (currTime > gFuncCosts[currNode]) continue;
 
-    const candidateNodes: { [key: string]: [number, number] } = {};
 
     for (const [line, nodes] of Object.entries(graph.lines)) {
       if (currNode in nodes) {
@@ -67,15 +65,10 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
               fFuncCosts[edge.stop] = newCost + ASTAR_TIME_POWER * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
               edgesUsed[edge.stop] = edge;
               openPQ.add([fFuncCosts[edge.stop], newCost, edge.stop]);
-              candidateNodes[edge.stop] = [fFuncCosts[edge.stop], newCost];
             }
           }
         }
       }
-    }
-
-    for (const [node, prio_cost] of Object.entries(candidateNodes)) {
-      openPQ.add([...prio_cost, node]);
     }
   }
 

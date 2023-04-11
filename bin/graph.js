@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getChangesAmount = exports.Edge = exports.Node = exports.Graph = void 0;
-const idx_id = 0;
-const idx_company = 1;
 const idx_line = 2;
 const idx_departure_time = 3;
 const idx_arrival_time = 4;
@@ -45,10 +43,7 @@ class Graph {
     sortEdges() {
         for (let [line, nodes] of Object.entries(this.lines)) {
             for (let [node, neighbours] of Object.entries(nodes)) {
-                //connectionEdge jest na linię i czas
                 for (let [neighbour, connectionEdges] of Object.entries(neighbours)) {
-                    //sortowanie 
-                    //connectionEdges.sort((a, b) => a.timeSinceTimeZero(datetime) > b.timeSinceTimeZero(datetime) ? 1 : 0);
                     connectionEdges.sort(Edge.compare);
                 }
             }

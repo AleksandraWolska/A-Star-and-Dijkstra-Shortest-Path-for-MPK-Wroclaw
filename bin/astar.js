@@ -44,9 +44,6 @@ function astarTimeCriteria(graph, start, goal, heuristicsFunction) {
         const [_, currTime, currNode] = openPQ.poll();
         if (currNode === goal)
             return [gFuncCosts, edgesUsed];
-        if (currTime > gFuncCosts[currNode])
-            continue;
-        const candidateNodes = {};
         for (const [line, nodes] of Object.entries(graph.lines)) {
             if (currNode in nodes) {
                 for (const [neighbour, edges] of Object.entries(nodes[currNode])) {
@@ -61,14 +58,10 @@ function astarTimeCriteria(graph, start, goal, heuristicsFunction) {
                             fFuncCosts[edge.stop] = newCost + parameters_1.ASTAR_TIME_POWER * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                             edgesUsed[edge.stop] = edge;
                             openPQ.add([fFuncCosts[edge.stop], newCost, edge.stop]);
-                            candidateNodes[edge.stop] = [fFuncCosts[edge.stop], newCost];
                         }
                     }
                 }
             }
-        }
-        for (const [node, prio_cost] of Object.entries(candidateNodes)) {
-            openPQ.add([...prio_cost, node]);
         }
     }
     return null;

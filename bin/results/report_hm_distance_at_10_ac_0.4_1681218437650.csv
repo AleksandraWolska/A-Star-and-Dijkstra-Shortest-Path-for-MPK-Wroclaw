@@ -1,0 +1,91 @@
+algorithm,heuristic,calculation_time,cost,ride_time,line_changes
+Dijkstra,,69,31,31,2
+A* time,Manhattan,5,31,31,2
+A* time,Euclidean,5,31,31,2
+A* time,Chebyshev,5,46,46,4
+A* time,Octile,4,46,46,4
+A* changes,Manhattan,11,2,33,2
+A* changes,Euclidean,10,2,33,2
+A* changes,Chebyshev,9,2,33,2
+A* changes,Octile,9,2,33,2
+Dijkstra,,78,31,31,2
+A* time,Manhattan,2,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,6,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,80,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,8,2,33,2
+A* changes,Euclidean,7,2,33,2
+A* changes,Chebyshev,8,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,50,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,2,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,7,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,1,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,7,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,2,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,6,2,33,2
+A* changes,Euclidean,7,2,33,2
+A* changes,Chebyshev,6,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,2,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,6,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,6,2,33,2
+Dijkstra,,49,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,7,2,33,2
+A* changes,Euclidean,7,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,7,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,46,46,4
+A* time,Octile,1,46,46,4
+A* changes,Manhattan,7,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,6,2,33,2
+A* changes,Octile,5,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,3,31,31,2
+A* time,Euclidean,2,31,31,2
+A* time,Chebyshev,3,46,46,4
+A* time,Octile,2,46,46,4
+A* changes,Manhattan,7,2,33,2
+A* changes,Euclidean,6,2,33,2
+A* changes,Chebyshev,7,2,33,2
+A* changes,Octile,6,2,33,2
