@@ -47,8 +47,6 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
 
     if (currNode === goal) return [gFuncCosts, edgesUsed];
 
-
-
     for (const [line, nodes] of Object.entries(graph.lines)) {
       if (currNode in nodes) {
         for (const [neighbour, edges] of Object.entries(nodes[currNode])) {

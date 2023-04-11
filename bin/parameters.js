@@ -9,13 +9,11 @@ const heuristicsOption = {
     TIME: "time",
     DISTANCE: "distance"
 };
-exports.PROGRAM_MODE = mode.ANALYZE;
+exports.PROGRAM_MODE = mode.INTERACTIVE;
 exports.HEURISTICS_MODE = heuristicsOption.DISTANCE;
 exports.ANALYZE_RUNS = 10;
-// export const ASTAR_TIME_POWER = 10;
-// export const ASTAR_CHANGES_POWER = 1.5;
 exports.ASTAR_TIME_POWER = 10;
-exports.ASTAR_CHANGES_POWER = 0.4;
+exports.ASTAR_CHANGES_POWER = 1.5;
 exports.DEFAULT_START_NODE = "Prusa";
 exports.DEFAULT_END_NODE = "Kwiska";
 exports.DEFAULT_START_TIME = "17:00:00";
