@@ -1,0 +1,41 @@
+algorithm,calculation_time,cost,ride_time,line_changes
+Dijkstra Algorithm,110,31,31,2
+A* Algorithm - time - Manhattan,9,46,46,4
+A* Algorithm - time - Euclidean,7,46,46,4
+A* Algorithm - changes,68,2,33,2
+Dijkstra Algorithm,121,31,31,2
+A* Algorithm - time - Manhattan,4,46,46,4
+A* Algorithm - time - Euclidean,7,46,46,4
+A* Algorithm - changes,66,2,33,2
+Dijkstra Algorithm,124,31,31,2
+A* Algorithm - time - Manhattan,8,46,46,4
+A* Algorithm - time - Euclidean,7,46,46,4
+A* Algorithm - changes,52,2,33,2
+Dijkstra Algorithm,50,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,2,46,46,4
+A* Algorithm - changes,32,2,33,2
+Dijkstra Algorithm,47,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,2,46,46,4
+A* Algorithm - changes,31,2,33,2
+Dijkstra Algorithm,47,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,2,46,46,4
+A* Algorithm - changes,32,2,33,2
+Dijkstra Algorithm,47,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,3,46,46,4
+A* Algorithm - changes,31,2,33,2
+Dijkstra Algorithm,46,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,3,46,46,4
+A* Algorithm - changes,32,2,33,2
+Dijkstra Algorithm,46,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,2,46,46,4
+A* Algorithm - changes,32,2,33,2
+Dijkstra Algorithm,47,31,31,2
+A* Algorithm - time - Manhattan,3,46,46,4
+A* Algorithm - time - Euclidean,2,46,46,4
+A* Algorithm - changes,33,2,33,2

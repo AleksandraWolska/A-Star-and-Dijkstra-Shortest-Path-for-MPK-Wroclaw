@@ -1,53 +1,99 @@
 import fs from 'fs';
+import path from 'path';
+import moment from 'moment';
+import loadCSV from './csv'
+import readline from 'readline';
+
 import { Graph, getChangesAmount } from './graph';
 import { dijkstra } from './dijkstra';
 import { astar } from './astar';
-import moment from 'moment';
-import loadCSV from './csv';
-import { euclidean_distance, manhattan_distance } from './distances';
+import {
+    manhattanDistanceHeuristic,
+    euclideanDistanceHeuristic,
+    chebyshevDistanceHeuristic,
+    octileDistanceHeuristic,
+    manhattanTimeHeuristic,
+    euclideanTimeHeuristic,
+    chebyshevTimeHeuristic,
+    octileTimeHeuristic,
+} from './distances';
 import { graph, edge } from "./types"
-import readline from 'readline';
+import { ANALYZE_RUNS, ASTAR_CHANGES_POWER, ASTAR_TIME_POWER, DEFAULT_END_NODE, DEFAULT_START_NODE, DEFAULT_START_TIME, HEURISTICS_MODE, PROGRAM_MODE } from './parameters';
+import { pivotAverages } from './pivot';
 
 
-
-async function createSummaryFile( graph: graph, start: string, end: string, startTime: Date): Promise<void> {
-    const runs = 2;
+async function createSummaryFile(graph: graph, start: string, end: string, startTime: Date, heuristicsOption: string, filename: string): Promise<void> {
     const headers = [
-      'algorithm', 'calculation_time', 'cost', 'ride_time', 'line_changes',
+        'algorithm',
+        'heuristic',
+        'calculation_time',
+        'cost',
+        'ride_time',
+        'line_changes',
     ];
     const results: string[][] = [headers];
-  
-    for (let i = 0; i < runs; i++) {
-      const algorithms = [
-        { name: 'Dijkstra Algorithm', func: (g: graph, s: string, e: string, t: Date) => dijkstra(g, s, e, t) },
-        { name: 'A* Algorithm - time - Manhattan', func: (g: graph, s: string, e: string, t: Date) => astar(g, s, e, "t", manhattan_distance) },
-        { name: 'A* Algorithm - time - Euclidean', func: (g: graph, s: string, e: string, t: Date) => astar(g, s, e, "t", euclidean_distance) },
-        { name: 'A* Algorithm - changes', func: (g: graph, s: string, e: string, t: Date) => astar(g, s, e, "p", manhattan_distance) },
-      ];
-  
-      for (const { name, func } of algorithms) {
-        const beginTime = new Date();
-        const [cost, path] = await func(graph, start, end, startTime);
-        const arrivalTime = path[path.length-1].arrivalTime
-        const endTime = new Date();
-        const calculationTime = endTime.getTime() - beginTime.getTime();
-        const lineChanges = getChangesAmount(path);
-  
-        results.push([name, calculationTime.toString(), cost.toString(), ((arrivalTime.getTime() - startTime.getTime())/60000).toString(), lineChanges.toString()]);
-      }
+
+    const heuristics = heuristicsOption == "time" ?
+        [
+            { name: 'Time_Manhattan', func: manhattanTimeHeuristic },
+            { name: 'Time_Euclidean', func: euclideanTimeHeuristic },
+            { name: 'Time_Chebyshev', func: chebyshevTimeHeuristic },
+            { name: 'Time_Octile', func: octileTimeHeuristic },
+        ]
+        :
+        [
+            { name: 'Manhattan', func: manhattanDistanceHeuristic },
+            { name: 'Euclidean', func: euclideanDistanceHeuristic },
+            { name: 'Chebyshev', func: chebyshevDistanceHeuristic },
+            { name: 'Octile', func: octileDistanceHeuristic }
+        ]
+
+
+    for (let i = 0; i < ANALYZE_RUNS; i++) {
+        const algorithms = [
+            {
+                name: 'Dijkstra',
+                heuristic: '',
+                func: (g: graph, s: string, e: string, t: Date) => dijkstra(g, s, e, t),
+            },
+            ...heuristics.map((heuristic) => ({
+                name: 'A* time',
+                heuristic: heuristic.name,
+                func: (g: graph, s: string, e: string, t: Date) =>
+                    astar(g, s, e, 't', heuristic.func),
+            })),
+            ...heuristics.map((heuristic) => ({
+                name: 'A* changes',
+                heuristic: heuristic.name,
+                func: (g: graph, s: string, e: string, t: Date) =>
+                    astar(g, s, e, 'p', heuristic.func),
+            })),
+        ];
+
+        for (const { name, heuristic, func } of algorithms) {
+            const beginTime = new Date();
+            const [cost, path] = await func(graph, start, end, startTime);
+            const endTime = new Date();
+            const arrivalTime = path[path.length - 1].arrivalTime;
+            const calculationTime = endTime.getTime() - beginTime.getTime();
+            const lineChanges = getChangesAmount(path);
+
+            results.push([
+                name,
+                heuristic,
+                calculationTime.toString(),
+                cost.toString(),
+                ((arrivalTime.getTime() - startTime.getTime()) / 60000).toString(),
+                lineChanges.toString(),
+            ]);
+        }
     }
-  
-    const csvContent = results.map(row => row.join(',')).join('\n');
-    fs.writeFileSync('results.csv', csvContent);
-  }
 
-
-
-
-
-
-
-
+    const csvContent = results.map((row) => row.join(',')).join('\n');
+    const outputFilename = filename + ".csv"
+    const outputPath = path.join(__dirname, outputFilename);
+    fs.writeFileSync(outputPath, csvContent);
+}
 
 
 function getUserInput(promptText: string): Promise<string> {
@@ -76,11 +122,11 @@ async function interactiveMode(graph: graph): Promise<void> {
         const parsedStartTime = moment(startTime, 'HH:mm:ss').toDate();
 
         if (criteria === 't') {
-            task1(graph, startNode, destinationNode, parsedStartTime);
-            task2(graph, startNode, destinationNode, parsedStartTime);
+            task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+            task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
         } else if (criteria === 'p') {
-            task1(graph, startNode, destinationNode, parsedStartTime);
-            task3(graph, startNode, destinationNode, parsedStartTime);
+            task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+            task3AstarChanges(graph, startNode, destinationNode, parsedStartTime);
         } else {
             console.log("Invalid criteria. Please try again.");
         }
@@ -91,48 +137,54 @@ async function interactiveMode(graph: graph): Promise<void> {
 function printResults(algorithm: string, path: edge[], startTime: string, beginTime: Date, endTime: Date, cost: number): void {
     console.log(`${algorithm}:`);
     console.log(path.map(edge => edge.toString()), startTime);
-    console.log(`Execution of ${algorithm} took: ${endTime.getTime() - beginTime.getTime()}, line changed ${getChangesAmount(path)} times and had cost of: ${cost}`);
+    console.log(`${algorithm} | calculation time:  ${endTime.getTime() - beginTime.getTime()} | line changes: ${getChangesAmount(path)} | cost: ${cost}`);
 }
 
 
-
-function task1(graph: graph, start: string, end: string, startTime: Date): void {
+function task1Dijkstra(graph: graph, start: string, end: string, startTime: Date): void {
     const beginTime = new Date();
     const [cost, path] = dijkstra(graph, start, end, startTime);
     const endTime = new Date();
     printResults('Dijkstra Algorithm', path, startTime.toLocaleDateString(), beginTime, endTime, cost);
 }
 
-function task2(graph: graph, start: string, end: string, startTime: Date): void {
+function task2AstarTime(graph: graph, start: string, end: string, startTime: Date): void {
     const beginTime1 = new Date();
-    const [cost1, path1] = astar(graph, start, end, "t", manhattan_distance);
+    const [cost1, path1] = astar(graph, start, end, "t", manhattanDistanceHeuristic);
     const endTime1 = new Date();
     printResults('A* Algorithm - time - Manhattan', path1, startTime.toLocaleDateString(), beginTime1, endTime1, cost1);
 
     const beginTime2 = new Date();
-    const [cost2, path2] = astar(graph, start, end, "t", euclidean_distance);
+    const [cost2, path2] = astar(graph, start, end, "t", euclideanDistanceHeuristic);
     const endTime2 = new Date();
     printResults('A* Algorithm - time - Euclidean', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
 }
 
-function task3(graph: graph, start: string, end: string, startTime: Date): void {
+function task3AstarChanges(graph: graph, start: string, end: string, startTime: Date): void {
     const beginTime = new Date();
-    const [cost, path] = astar(graph, start, end, "p", manhattan_distance);
+    const [cost, path] = astar(graph, start, end, "p", manhattanDistanceHeuristic);
     const endTime = new Date();
-    printResults('A* Algorithm - changes', path, startTime.toLocaleDateString(), beginTime, endTime, cost);
+    printResults('A* Algorithm - changes - Manhattan', path, startTime.toLocaleDateString(), beginTime, endTime, cost);
+
+    const beginTime2 = new Date();
+    const [cost2, path2] = astar(graph, start, end, "p", manhattanDistanceHeuristic);
+    const endTime2 = new Date();
+    printResults('A* Algorithm - changes - Manhattan', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
 }
+
 
 async function main(): Promise<void> {
     const data = loadCSV();
-    const datetime = moment('17:00:00', 'HH:mm:ss').toDate();
+    const datetime = moment(DEFAULT_START_TIME, 'HH:mm:ss').toDate();
     const graph: graph = new Graph(data, datetime);
-    console.log("main datetime:" + datetime);
-    // task1(graph, 'Prusa', 'Kwiska', datetime);
-    // task2(graph, 'Prusa', 'Kwiska', datetime);
-    // task3(graph, 'Prusa', 'Kwiska', datetime);
-    //await interactiveMode(graph);
-
-    createSummaryFile(graph, "Prusa", "Kwiska", datetime)
+  
+    if (PROGRAM_MODE == "INTERACTIVE") {
+        await interactiveMode(graph);
+    } else {
+        const filename = `results/report_hm_${HEURISTICS_MODE}_at_${ASTAR_TIME_POWER}_ac_${ASTAR_CHANGES_POWER}_${(new Date()).getTime().toString()}`
+        await createSummaryFile(graph, DEFAULT_START_NODE, DEFAULT_END_NODE, datetime, HEURISTICS_MODE, filename)
+        pivotAverages(filename)
     }
-    
-    main();
+}
+
+main();

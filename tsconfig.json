@@ -2,12 +2,13 @@
     "compilerOptions": {
       "target": "es6",
       "module": "commonjs",
-      "esModuleInterop": true,
+      "esModuleInterop": true, 
+      "outDir": "./bin",
       "sourceMap": true,
       "strict": false,
       "noImplicitAny": true,
       "moduleResolution": "node"
     },
     "include": ["src/**/*.ts", "src/**/*.tsx"],
-    "exclude": ["node_modules"]
+    "exclude": ["node_modules", "**/*.spec.ts"]
   }

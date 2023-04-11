@@ -1,0 +1,181 @@
+algorithm,heuristic,calculation_time,cost,ride_time,line_changes
+Dijkstra,,66,31,31,2
+A* time,Manhattan,8,31,31,2
+A* time,Euclidean,9,31,31,2
+A* time,Chebyshev,6,31,31,2
+A* time,Octile,7,31,31,2
+A* changes,Manhattan,41,2,33,2
+A* changes,Euclidean,39,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,32,2,33,2
+Dijkstra,,75,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,4,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,31,2,33,2
+A* changes,Euclidean,30,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,31,2,33,2
+Dijkstra,,76,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,4,31,31,2
+A* time,Chebyshev,2,31,31,2
+A* time,Octile,4,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,33,2,33,2
+Dijkstra,,49,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,31,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,32,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,4,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,4,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,31,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,4,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,48,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,50,31,31,2
+A* time,Manhattan,5,31,31,2
+A* time,Euclidean,5,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,32,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,33,2,33,2
+Dijkstra,,49,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,4,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,32,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,31,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,30,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,39,2,33,2
+Dijkstra,,73,31,31,2
+A* time,Manhattan,6,31,31,2
+A* time,Euclidean,5,31,31,2
+A* time,Chebyshev,5,31,31,2
+A* time,Octile,6,31,31,2
+A* changes,Manhattan,47,2,33,2
+A* changes,Euclidean,48,2,33,2
+A* changes,Chebyshev,49,2,33,2
+A* changes,Octile,48,2,33,2
+Dijkstra,,72,31,31,2
+A* time,Manhattan,6,31,31,2
+A* time,Euclidean,5,31,31,2
+A* time,Chebyshev,5,31,31,2
+A* time,Octile,6,31,31,2
+A* changes,Manhattan,47,2,33,2
+A* changes,Euclidean,48,2,33,2
+A* changes,Chebyshev,48,2,33,2
+A* changes,Octile,47,2,33,2
+Dijkstra,,73,31,31,2
+A* time,Manhattan,6,31,31,2
+A* time,Euclidean,6,31,31,2
+A* time,Chebyshev,5,31,31,2
+A* time,Octile,5,31,31,2
+A* changes,Manhattan,47,2,33,2
+A* changes,Euclidean,48,2,33,2
+A* changes,Chebyshev,47,2,33,2
+A* changes,Octile,48,2,33,2
+Dijkstra,,71,31,31,2
+A* time,Manhattan,6,31,31,2
+A* time,Euclidean,6,31,31,2
+A* time,Chebyshev,5,31,31,2
+A* time,Octile,6,31,31,2
+A* changes,Manhattan,47,2,33,2
+A* changes,Euclidean,48,2,33,2
+A* changes,Chebyshev,47,2,33,2
+A* changes,Octile,47,2,33,2
+Dijkstra,,53,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,32,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,31,2,33,2
+A* changes,Octile,30,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,31,2,33,2
+Dijkstra,,47,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,3,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,30,2,33,2
+A* changes,Euclidean,31,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,31,2,33,2
+Dijkstra,,49,31,31,2
+A* time,Manhattan,4,31,31,2
+A* time,Euclidean,3,31,31,2
+A* time,Chebyshev,2,31,31,2
+A* time,Octile,3,31,31,2
+A* changes,Manhattan,31,2,33,2
+A* changes,Euclidean,35,2,33,2
+A* changes,Chebyshev,30,2,33,2
+A* changes,Octile,30,2,33,2

@@ -1,5 +1,6 @@
 import FastPriorityQueue from 'fastpriorityqueue';
 import { graph, node, edge, costDict, pathDict } from "./types"
+import { ASTAR_TIME_POWER, ASTAR_CHANGES_POWER } from './parameters';
 
 export function astar(graph: graph, start: string, goal: string, criteria: string, heuristics: (a: node, b: node) => number): [number, edge[]] {
   let costs: { [key: string]: number } | null = null;
@@ -26,7 +27,6 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
   const fFuncCosts: costDict = {};
   const gFuncCosts: costDict = {};
   const edgesUsed: pathDict = {};
-  const heuristicPower = 10000;
 
   for (const nodes of Object.values(graph.lines)) {
     for (const node of Object.keys(nodes)) {
@@ -64,7 +64,7 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
 
             if (newCost < gFuncCosts[edge.stop]) {
               gFuncCosts[edge.stop] = newCost;
-              fFuncCosts[edge.stop] = newCost + heuristicPower * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+              fFuncCosts[edge.stop] = newCost + ASTAR_TIME_POWER * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
               edgesUsed[edge.stop] = edge;
               openPQ.add([fFuncCosts[edge.stop], newCost, edge.stop]);
               candidateNodes[edge.stop] = [fFuncCosts[edge.stop], newCost];
@@ -87,7 +87,7 @@ export function astarChangesCriteria(graph: graph, start: string, goal: string, 
   const fFuncCosts: costDict = {};
   const gFuncCosts: costDict = {};
   const edgesUsed: pathDict = {};
-  const heuristicPower = 10;
+
 
   for (const nodes of Object.values(graph.lines)) {
     for (const node of Object.keys(nodes)) {
@@ -118,7 +118,7 @@ export function astarChangesCriteria(graph: graph, start: string, goal: string, 
 
               if (newCost < gFuncCosts[edge.stop]) {
                 gFuncCosts[edge.stop] = newCost;
-                fFuncCosts[edge.stop] = newCost + heuristicPower * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
+                fFuncCosts[edge.stop] = newCost + ASTAR_CHANGES_POWER * heuristicsFunction(graph.nodes[edge.stop], graph.nodes[goal]);
                 edgesUsed[edge.stop] = edge;
                 openPQ.add([fFuncCosts[edge.stop], edge.line, edge.stop]);
               }

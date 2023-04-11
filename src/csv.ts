@@ -1,5 +1,6 @@
 import fs from 'fs';
 import moment from 'moment';
+import path from 'path';
 
 
 const indice_id = 0;
@@ -25,9 +26,10 @@ function clearRow(row: string[]): any[] {
 }
 
 
-export default function loadCSV(filename = 'connection_graph.csv') {
+export default function loadCSV(filename = 'data/connection_graph.csv') {
     const data = [];
-    const file = fs.readFileSync(filename, { encoding: 'utf-8' });
+    const filePath = path.join(__dirname, filename);
+    const file = fs.readFileSync(filePath, { encoding: 'utf-8' });
     const rows = file.split('\n');
     rows.splice(0, 1)
     for (const row of rows) {
