@@ -23,6 +23,7 @@ const astar_1 = require("./astar");
 const distances_1 = require("./distances");
 const parameters_1 = require("./parameters");
 const pivot_1 = require("./pivot");
+let DATA;
 function createSummaryFile(graph, start, end, startTime, heuristicsOption, filename) {
     return __awaiter(this, void 0, void 0, function* () {
         const headers = [
@@ -119,6 +120,7 @@ function interactiveMode(graph) {
                 let startTime = yield getUserInput("Start time (HH:mm:ss): ");
                 startTime = startTime == "" ? parameters_1.DEFAULT_START_TIME : startTime;
                 const parsedStartTime = (0, moment_1.default)(startTime, 'HH:mm:ss').toDate();
+                graph = yield new graph_1.Graph(DATA, parsedStartTime);
                 if (criteria === 't') {
                     task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
                     task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
@@ -170,9 +172,12 @@ function task3AstarChanges(graph, start, end, startTime) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = (0, csv_1.default)();
+        DATA = (0, csv_1.default)();
         const datetime = (0, moment_1.default)(parameters_1.DEFAULT_START_TIME, 'HH:mm:ss').toDate();
-        const graph = new graph_1.Graph(data, datetime);
+        const temp1 = (new Date).getTime();
+        const graph = new graph_1.Graph(DATA, datetime);
+        const temp2 = (new Date).getTime();
+        console.log("graph creation took: " + (temp2 - temp1));
         if (parameters_1.PROGRAM_MODE == "INTERACTIVE") {
             yield interactiveMode(graph);
         }

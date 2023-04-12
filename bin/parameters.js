@@ -9,7 +9,7 @@ const heuristicsOption = {
     TIME: "time",
     DISTANCE: "distance"
 };
-exports.PROGRAM_MODE = mode.ANALYZE;
+exports.PROGRAM_MODE = mode.INTERACTIVE;
 exports.HEURISTICS_MODE = heuristicsOption.DISTANCE;
 exports.ANALYZE_RUNS = 10;
 // export const ASTAR_TIME_POWER = 40;

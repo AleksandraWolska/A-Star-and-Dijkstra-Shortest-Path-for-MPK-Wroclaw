@@ -22,6 +22,9 @@ import { ANALYZE_RUNS, ASTAR_CHANGES_POWER, ASTAR_TIME_POWER, DEFAULT_END_NODE, 
 import { pivotAverages } from './pivot';
 
 
+
+let DATA : any[][];
+
 async function createSummaryFile(graph: graph, start: string, end: string, startTime: Date, heuristicsOption: string, filename: string): Promise<void> {
     const headers = [
         'algorithm',
@@ -129,7 +132,7 @@ async function interactiveMode(graph: graph): Promise<void> {
             let startTime = await getUserInput("Start time (HH:mm:ss): ");
             startTime = startTime == "" ? DEFAULT_START_TIME : startTime
             const parsedStartTime = moment(startTime, 'HH:mm:ss').toDate();
-
+            graph = await new Graph(DATA, parsedStartTime);
 
             if (criteria === 't') {
                 task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
@@ -189,10 +192,12 @@ function task3AstarChanges(graph: graph, start: string, end: string, startTime: 
 
 
 async function main(): Promise<void> {
-    const data = loadCSV();
+    DATA = loadCSV();
     const datetime = moment(DEFAULT_START_TIME, 'HH:mm:ss').toDate();
-    const graph: graph = new Graph(data, datetime);
-
+    const temp1 = ( new Date).getTime()
+    const graph: graph = new Graph(DATA, datetime);
+const temp2 = (new Date).getTime()
+console.log("graph creation took: " + (temp2-temp1))
     if (PROGRAM_MODE == "INTERACTIVE") {
         await interactiveMode(graph);
     } else {

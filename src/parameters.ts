@@ -8,7 +8,7 @@ const heuristicsOption = {
     DISTANCE: "distance"
 }
 
-export const PROGRAM_MODE = mode.ANALYZE
+export const PROGRAM_MODE = mode.INTERACTIVE
 export const HEURISTICS_MODE = heuristicsOption.DISTANCE
 
 export const ANALYZE_RUNS = 10;
