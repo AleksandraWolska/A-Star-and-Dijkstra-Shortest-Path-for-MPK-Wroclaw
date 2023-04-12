@@ -104,22 +104,35 @@ function getUserInput(promptText) {
 function interactiveMode(graph) {
     return __awaiter(this, void 0, void 0, function* () {
         while (true) {
-            console.log("Please provide the following details:");
-            const startNode = yield getUserInput("Start stop (node) A: ");
-            const destinationNode = yield getUserInput("Destination stop (node) B: ");
-            const criteria = yield getUserInput("Criteria (t for time, p for line changes): ");
-            const startTime = yield getUserInput("Start time (HH:mm:ss): ");
-            const parsedStartTime = (0, moment_1.default)(startTime, 'HH:mm:ss').toDate();
-            if (criteria === 't') {
-                task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
-                task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
+            try {
+                console.log("Please provide the following details:");
+                let startNode = yield getUserInput("Start stop (node) A: ");
+                startNode = startNode == "" ? parameters_1.DEFAULT_START_NODE : startNode;
+                if (!Object.keys(graph.nodes).includes(startNode))
+                    throw new Error("Start stop does not exist!");
+                let destinationNode = yield getUserInput("Destination stop (node) B: ");
+                destinationNode = destinationNode == "" ? parameters_1.DEFAULT_END_NODE : destinationNode;
+                if (!Object.keys(graph.nodes).includes(destinationNode))
+                    throw new Error("End stop does not exist!");
+                let criteria = yield getUserInput("Criteria (t for time, p for line changes): ");
+                criteria = criteria == "" ? "t" : criteria;
+                let startTime = yield getUserInput("Start time (HH:mm:ss): ");
+                startTime = startTime == "" ? parameters_1.DEFAULT_START_TIME : startTime;
+                const parsedStartTime = (0, moment_1.default)(startTime, 'HH:mm:ss').toDate();
+                if (criteria === 't') {
+                    task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+                    task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
+                }
+                else if (criteria === 'p') {
+                    task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+                    task3AstarChanges(graph, startNode, destinationNode, parsedStartTime);
+                }
+                else {
+                    console.log("Invalid criteria. Please try again.");
+                }
             }
-            else if (criteria === 'p') {
-                task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
-                task3AstarChanges(graph, startNode, destinationNode, parsedStartTime);
-            }
-            else {
-                console.log("Invalid criteria. Please try again.");
+            catch (e) {
+                console.error(e.message);
             }
         }
     });
@@ -151,9 +164,9 @@ function task3AstarChanges(graph, start, end, startTime) {
     const endTime = new Date();
     printResults('A* Algorithm - changes - Manhattan', path, startTime.toLocaleDateString(), beginTime, endTime, cost);
     const beginTime2 = new Date();
-    const [cost2, path2] = (0, astar_1.astar)(graph, start, end, "p", distances_1.manhattanDistanceHeuristic);
+    const [cost2, path2] = (0, astar_1.astar)(graph, start, end, "p", distances_1.euclideanDistanceHeuristic);
     const endTime2 = new Date();
-    printResults('A* Algorithm - changes - Manhattan', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
+    printResults('A* Algorithm - changes - Euclidean', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -164,7 +177,7 @@ function main() {
             yield interactiveMode(graph);
         }
         else {
-            const filename = `results/report_hm_${parameters_1.HEURISTICS_MODE}_at_${parameters_1.ASTAR_TIME_POWER}_ac_${parameters_1.ASTAR_CHANGES_POWER}_${(new Date()).getTime().toString()}`;
+            const filename = `results/report_${(new Date()).getTime().toString()}_hm_${parameters_1.HEURISTICS_MODE}_at_${parameters_1.ASTAR_TIME_POWER}_ac_${parameters_1.ASTAR_CHANGES_POWER}`;
             yield createSummaryFile(graph, parameters_1.DEFAULT_START_NODE, parameters_1.DEFAULT_END_NODE, datetime, parameters_1.HEURISTICS_MODE, filename);
             (0, pivot_1.pivotAverages)(filename);
         }

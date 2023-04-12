@@ -3,8 +3,9 @@ import FastPriorityQueue from 'fastpriorityqueue';
 import { graph, edge, costDict, pathDict } from "./types"
 
 export function dijkstra(graph: graph, sourceNode: string, destinationNode: string, momentZero: Date): [number, edge[]] {
-  const [costs, edgesUsed] = dijkstraTime(graph, sourceNode, destinationNode);
+  const [costs, edgesUsed] = dijkstraTime(graph, sourceNode, destinationNode) || [null, null];
   const path: edge[] = [];
+  if (edgesUsed == null) throw new Error("Nie znaleziono połączenia!")
   let currentNode: string = destinationNode;
   while (currentNode !== sourceNode) {
     path.push(edgesUsed[currentNode]!);

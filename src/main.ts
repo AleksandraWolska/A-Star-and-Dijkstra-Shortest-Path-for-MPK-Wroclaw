@@ -112,24 +112,39 @@ function getUserInput(promptText: string): Promise<string> {
 
 async function interactiveMode(graph: graph): Promise<void> {
     while (true) {
-        console.log("Please provide the following details:");
+        try {
+            console.log("Please provide the following details:");
 
-        const startNode = await getUserInput("Start stop (node) A: ");
-        const destinationNode = await getUserInput("Destination stop (node) B: ");
-        const criteria = await getUserInput("Criteria (t for time, p for line changes): ");
-        const startTime = await getUserInput("Start time (HH:mm:ss): ");
+            let startNode = await getUserInput("Start stop (node) A: ");
+            startNode = startNode == "" ? DEFAULT_START_NODE : startNode
+            if (!Object.keys(graph.nodes).includes(startNode)) throw new Error("Start stop does not exist!")
 
-        const parsedStartTime = moment(startTime, 'HH:mm:ss').toDate();
+            let destinationNode = await getUserInput("Destination stop (node) B: ");
+            destinationNode = destinationNode == "" ? DEFAULT_END_NODE : destinationNode
+            if (!Object.keys(graph.nodes).includes(destinationNode)) throw new Error("End stop does not exist!")
 
-        if (criteria === 't') {
-            task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
-            task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
-        } else if (criteria === 'p') {
-            task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
-            task3AstarChanges(graph, startNode, destinationNode, parsedStartTime);
-        } else {
-            console.log("Invalid criteria. Please try again.");
+            let criteria = await getUserInput("Criteria (t for time, p for line changes): ");
+            criteria = criteria == "" ? "t" : criteria
+            
+            let startTime = await getUserInput("Start time (HH:mm:ss): ");
+            startTime = startTime == "" ? DEFAULT_START_TIME : startTime
+            const parsedStartTime = moment(startTime, 'HH:mm:ss').toDate();
+
+
+            if (criteria === 't') {
+                task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+                task2AstarTime(graph, startNode, destinationNode, parsedStartTime);
+            } else if (criteria === 'p') {
+                task1Dijkstra(graph, startNode, destinationNode, parsedStartTime);
+                task3AstarChanges(graph, startNode, destinationNode, parsedStartTime);
+            } else {
+                console.log("Invalid criteria. Please try again.");
+            }
+
+        } catch (e) {
+            console.error(e.message)
         }
+
     }
 }
 
@@ -167,9 +182,9 @@ function task3AstarChanges(graph: graph, start: string, end: string, startTime: 
     printResults('A* Algorithm - changes - Manhattan', path, startTime.toLocaleDateString(), beginTime, endTime, cost);
 
     const beginTime2 = new Date();
-    const [cost2, path2] = astar(graph, start, end, "p", manhattanDistanceHeuristic);
+    const [cost2, path2] = astar(graph, start, end, "p", euclideanDistanceHeuristic);
     const endTime2 = new Date();
-    printResults('A* Algorithm - changes - Manhattan', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
+    printResults('A* Algorithm - changes - Euclidean', path2, startTime.toLocaleDateString(), beginTime2, endTime2, cost2);
 }
 
 
@@ -177,11 +192,11 @@ async function main(): Promise<void> {
     const data = loadCSV();
     const datetime = moment(DEFAULT_START_TIME, 'HH:mm:ss').toDate();
     const graph: graph = new Graph(data, datetime);
-  
+
     if (PROGRAM_MODE == "INTERACTIVE") {
         await interactiveMode(graph);
     } else {
-        const filename = `results/report_hm_${HEURISTICS_MODE}_at_${ASTAR_TIME_POWER}_ac_${ASTAR_CHANGES_POWER}_${(new Date()).getTime().toString()}`
+        const filename = `results/report_${(new Date()).getTime().toString()}_hm_${HEURISTICS_MODE}_at_${ASTAR_TIME_POWER}_ac_${ASTAR_CHANGES_POWER}`
         await createSummaryFile(graph, DEFAULT_START_NODE, DEFAULT_END_NODE, datetime, HEURISTICS_MODE, filename)
         pivotAverages(filename)
     }

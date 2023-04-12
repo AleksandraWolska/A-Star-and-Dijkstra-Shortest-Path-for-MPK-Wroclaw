@@ -6,8 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.dijkstraTime = exports.dijkstra = void 0;
 const fastpriorityqueue_1 = __importDefault(require("fastpriorityqueue"));
 function dijkstra(graph, sourceNode, destinationNode, momentZero) {
-    const [costs, edgesUsed] = dijkstraTime(graph, sourceNode, destinationNode);
+    const [costs, edgesUsed] = dijkstraTime(graph, sourceNode, destinationNode) || [null, null];
     const path = [];
+    if (edgesUsed == null)
+        throw new Error("Nie znaleziono połączenia!");
     let currentNode = destinationNode;
     while (currentNode !== sourceNode) {
         path.push(edgesUsed[currentNode]);

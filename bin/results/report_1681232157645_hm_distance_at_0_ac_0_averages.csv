@@ -1,0 +1,10 @@
+algorithm,heuristic,calculation_time,cost,ride_time,line_changes
+Dijkstra,,66.5,29,29,1
+A* time,Manhattan,53.4,29,29,1
+A* time,Euclidean,49.8,29,29,1
+A* time,Chebyshev,50.4,29,29,1
+A* time,Octile,45.2,29,29,1
+A* changes,Manhattan,75.4,1,301,1
+A* changes,Euclidean,76.8,1,301,1
+A* changes,Chebyshev,70.2,1,301,1
+A* changes,Octile,71.9,1,301,1

@@ -64,7 +64,7 @@ function astarTimeCriteria(graph, start, goal, heuristicsFunction) {
             }
         }
     }
-    return null;
+    throw new Error("Nie znaleziono połączenia!");
 }
 exports.astarTimeCriteria = astarTimeCriteria;
 function astarChangesCriteria(graph, start, goal, heuristicsFunction) {
@@ -105,7 +105,7 @@ function astarChangesCriteria(graph, start, goal, heuristicsFunction) {
             }
         }
     }
-    return null;
+    throw new Error("Nie znaleziono połączenia!");
 }
 exports.astarChangesCriteria = astarChangesCriteria;
 //# sourceMappingURL=astar.js.map

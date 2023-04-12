@@ -6,25 +6,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const moment_1 = __importDefault(require("moment"));
 const path_1 = __importDefault(require("path"));
-const indice_id = 0;
-const indice_id2 = 1;
-const indice_company = 2;
-const indice_line = 3;
-const indice_departure_time = 4;
-const indice_arrival_time = 5;
-const indice_start = 6;
-const indice_end = 7;
-const indice_start_lat = 8;
-const indice_start_lon = 9;
-const indice_end_lat = 10;
-const indice_end_lon = 11;
-//poprawienie formatu czasów
+const idx_id = 0;
+const idx_company = 2;
+const idx_line = 3;
+const idx_departure_time = 4;
+const idx_arrival_time = 5;
+const idx_start = 6;
+const idx_end = 7;
+const idx_start_lat = 8;
+const idx_start_lon = 9;
+const idx_end_lat = 10;
+const idx_end_lon = 11;
 function clearRow(row) {
-    let departureTime = row[indice_departure_time];
-    let arrivalTime = row[indice_arrival_time];
+    let departureTime = row[idx_departure_time];
+    let arrivalTime = row[idx_arrival_time];
     departureTime = `${(parseInt(departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(0, 2)) % 24)}${departureTime === null || departureTime === void 0 ? void 0 : departureTime.slice(2)}`;
     arrivalTime = `${(parseInt(arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(0, 2)) % 24)}${arrivalTime === null || arrivalTime === void 0 ? void 0 : arrivalTime.slice(2)}`;
-    return [...row.slice(0, indice_departure_time), departureTime, arrivalTime, ...row.slice(indice_arrival_time + 1)];
+    return [...row.slice(0, idx_departure_time), departureTime, arrivalTime, ...row.slice(idx_arrival_time + 1)];
 }
 function loadCSV(filename = 'data/connection_graph.csv') {
     const data = [];
@@ -33,22 +31,20 @@ function loadCSV(filename = 'data/connection_graph.csv') {
     const rows = file.split('\n');
     rows.splice(0, 1);
     for (const row of rows) {
-        //console.log(row)
         const fields = clearRow(row.split(','));
         const entry = [
-            parseInt(fields[indice_id]),
-            fields[indice_company],
-            fields[indice_line],
-            (0, moment_1.default)(fields[indice_departure_time], 'HH:mm:ss').toDate(),
-            (0, moment_1.default)(fields[indice_arrival_time], 'HH:mm:ss').toDate(),
-            fields[indice_start],
-            fields[indice_end],
-            parseFloat(fields[indice_start_lat]),
-            parseFloat(fields[indice_start_lon]),
-            parseFloat(fields[indice_end_lat]),
-            parseFloat(fields[indice_end_lon]),
+            parseInt(fields[idx_id]),
+            fields[idx_company],
+            fields[idx_line],
+            (0, moment_1.default)(fields[idx_departure_time], 'HH:mm:ss').toDate(),
+            (0, moment_1.default)(fields[idx_arrival_time], 'HH:mm:ss').toDate(),
+            fields[idx_start],
+            fields[idx_end],
+            parseFloat(fields[idx_start_lat]),
+            parseFloat(fields[idx_start_lon]),
+            parseFloat(fields[idx_end_lat]),
+            parseFloat(fields[idx_end_lon]),
         ];
-        //console.log(entry)
         data.push(entry);
     }
     return data;

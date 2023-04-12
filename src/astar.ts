@@ -69,8 +69,7 @@ export function astarTimeCriteria(graph: graph, start: string, goal: string, heu
       }
     }
   }
-
-  return null;
+  throw new Error("Nie znaleziono połączenia!")
 }
 
 
@@ -119,6 +118,5 @@ export function astarChangesCriteria(graph: graph, start: string, goal: string, 
       }
     }
   }
-
-  return null;
+  throw new Error("Nie znaleziono połączenia!")
 }

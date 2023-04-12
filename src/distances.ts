@@ -37,7 +37,6 @@ export function manhattanTimeHeuristic(a: node, b: node): number {
 }
 
 
-
 export function euclideanTimeHeuristic(a: node, b: node): number {
   const dx = a.latitude - b.latitude;
   const dy = a.longitude - b.longitude;
