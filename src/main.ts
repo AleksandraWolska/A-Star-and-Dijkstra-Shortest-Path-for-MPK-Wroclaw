@@ -23,7 +23,7 @@ import { pivotAverages } from './pivot';
 
 
 
-let DATA : any[][];
+let DATA: any[][];
 
 async function createSummaryFile(graph: graph, start: string, end: string, startTime: Date, heuristicsOption: string, filename: string): Promise<void> {
     const headers = [
@@ -128,7 +128,7 @@ async function interactiveMode(graph: graph): Promise<void> {
 
             let criteria = await getUserInput("Criteria (t for time, p for line changes): ");
             criteria = criteria == "" ? "t" : criteria
-            
+
             let startTime = await getUserInput("Start time (HH:mm:ss): ");
             startTime = startTime == "" ? DEFAULT_START_TIME : startTime
             const parsedStartTime = moment(startTime, 'HH:mm:ss').toDate();
@@ -196,8 +196,8 @@ async function main(): Promise<void> {
     const datetime = moment(DEFAULT_START_TIME, 'HH:mm:ss').toDate();
     const temp1 = ( new Date).getTime()
     const graph: graph = new Graph(DATA, datetime);
-const temp2 = (new Date).getTime()
-console.log("graph creation took: " + (temp2-temp1))
+    const temp2 = (new Date).getTime()
+    console.log("graph creation took: " + (temp2-temp1))
     if (PROGRAM_MODE == "INTERACTIVE") {
         await interactiveMode(graph);
     } else {
